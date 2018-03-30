@@ -35,14 +35,32 @@ def get_tweet(save_json=False):
 
     tweet_json = response.json()
 
-    if tweet_json['has_more_items']:
-        num_new_tweets = tweet_json['new_latent_count']
-    
-    tweets_html = tweet_json['items_html']
+    """//*[@id="stream-item-tweet-881842062265647105"]"""
 
-    if save_json:
-       save_output('/output.json', str(tweet_json))
-       save_output('/output.html', tweets_html.encode('utf-8'))
+    try: 
+        if tweet_json['has_more_items']:
+            num_new_tweets = tweet_json['new_latent_count']
+        
+        tweets_html = tweet_json['items_html']
+
+        if save_json:
+            save_output('/output.json', str(tweet_json))
+            save_output('/output.html', tweets_html)
+
+        #parser = etree.XMLParser(ns_clean=True, remove_comments=True, attribute_defaults=True)
+        parser = etree.HTMLParser(remove_blank_text=True, remove_comments=True)        
+        html_tree = etree.fromstring(tweets_html, parser)
+
+        tweets_pattern = '''/html/body/li[contains(@class,"stream-item")]'''
+        tweet_list = html_tree.xpath(tweets_pattern)
+
+        for tweet in tweet_list:
+            print(tweet)
+
+
+    except KeyError:
+        raise ValueError("Oops! Either user does not exist or is private.")
+
 
         
 def save_output(filename, data):
