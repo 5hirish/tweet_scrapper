@@ -55,8 +55,8 @@ def get_tweet(save_json=False):
 
         tweet_content_pattern = '''./div[@class="content"]'''
         tweet_time_ms_pattern = '''./div[@class="stream-item-header"]/small[@class="time"]/a[contains(@class,"tweet-timestamp")]'''
-        tweet_text_pattern = '''/div[@class="js-tweet-text-container"]//text()'''
-        tweet_links_list_pattern = '''/div[@class="js-tweet-text-container"]//a'''
+        tweet_text_pattern = '''./div[@class="js-tweet-text-container"]//text()'''
+        tweet_links_list_pattern = '''./div[@class="js-tweet-text-container"]//a'''
         
         tweet_reply_count_pattern = '''/div[@class="stream-item-footer"]/div/span[contains(@class, "ProfileTweet-action--reply")]/span/span/@data-tweet-stat-count'''
 
@@ -75,6 +75,23 @@ def get_tweet(save_json=False):
                 tweet_time_span = tweet_content[0].xpath(tweet_time_ms_pattern)[0].attrib['title']       # @data-time-ms     
 
                 logger.debug("{0}:{1}:{2}-{3}:{4}-{5}".format(item_id, item_type, tweet_id, tweet_author, tweet_author_id, tweet_time_span))
+
+                tweet_text = tweet_content[0].xpath(tweet_text_pattern)
+                tweet_text = ''.join(tweet_text).replace('\n','')
+                tweet_links_raw = tweet_content[0].xpath(tweet_links_list_pattern)
+                tweet_links_ext = []
+                tweet_hashtags = []
+                tweet_mentions = []
+                for raw_link in tweet_links_raw:
+                    raw_url = raw_link.attrib['href']
+                    if raw_url.startswith('https://'):
+                        tweet_links_ext.append(raw_url)
+                    elif raw_url.startswith('/hashtag/'):
+                        tweet_hashtags.append(raw_url)
+                    else:
+                        tweet_mentions.append(raw_url)
+
+                logger.debug("{0}:\t{1}:{2}:{3}".format(tweet_text, tweet_links_ext, tweet_hashtags, tweet_mentions))
 
 
     except KeyError:
