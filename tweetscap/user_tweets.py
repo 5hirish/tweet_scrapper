@@ -76,9 +76,9 @@ def get_tweet(save_json=False):
                 tweet_author_id = tweet_data.attrib['data-user-id']
             
                 tweet_content = tweet_data.xpath(tweet_content_pattern)
-                tweet_time_span = tweet_content[0].xpath(tweet_time_ms_pattern)[0].attrib['data-time-ms']       # @data-time-ms     
+                tweet_time_ms = tweet_content[0].xpath(tweet_time_ms_pattern)[0].attrib['data-time-ms']     
 
-                logger.debug("{0}:{1}:{2}-{3}:{4}-{5}".format(item_id, item_type, tweet_id, tweet_author, tweet_author_id, tweet_time_span))
+                logger.debug("{0}:{1}:{2}-{3}:{4}-{5}".format(item_id, item_type, tweet_id, tweet_author, tweet_author_id, tweet_time_ms))
 
                 tweet_text = tweet_content[0].xpath(tweet_text_pattern)
                 tweet_text = ''.join(tweet_text).replace('\n','')
