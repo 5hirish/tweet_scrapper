@@ -50,6 +50,7 @@ def get_tweet(save_json=False):
         #parser = etree.XMLParser(ns_clean=True, remove_comments=True, attribute_defaults=True)
         parser = etree.HTMLParser(remove_blank_text=True, remove_comments=True)        
         html_tree = etree.fromstring(tweets_html, parser)
+        hastag_capture = re.compile(r'/hashtag/([0-9a-zA-Z_]*)\?src=hash')
 
         tweets_pattern = '''/html/body/li[contains(@class,"stream-item")]'''        
 
@@ -90,8 +91,11 @@ def get_tweet(save_json=False):
                     if raw_url.startswith('https://'):
                         tweet_links_ext.append(raw_url)
                     elif raw_url.startswith('/hashtag/'):
-                        tweet_hashtags.append(raw_url)
+                        hash_tag_group = re.match(hastag_capture, raw_url)
+                        hash_tag = "#"+hash_tag_group.group(1)
+                        tweet_hashtags.append(hash_tag)
                     else:
+                        raw_url = raw_url.replace('/','@')
                         tweet_mentions.append(raw_url)
 
                 logger.debug("{0}:\t{1}:{2}:{3}".format(tweet_text, tweet_links_ext, tweet_hashtags, tweet_mentions))
