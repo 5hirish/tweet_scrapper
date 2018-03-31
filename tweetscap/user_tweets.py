@@ -51,11 +51,25 @@ def get_tweet(save_json=False):
         parser = etree.HTMLParser(remove_blank_text=True, remove_comments=True)        
         html_tree = etree.fromstring(tweets_html, parser)
 
-        tweets_pattern = '''/html/body/li[contains(@class,"stream-item")]'''
+        tweets_pattern = '''/html/body/li[contains(@class,"stream-item")]'''        
+
+        tweet_content_pattern = '''/div/div[@class="content"]'''
+        tweet_time_ms_pattern = '''/div[@class="stream-item-header"]/small[@class="time"]/a[contains(@class,"tweet-timestamp")]/span/@data-time-ms'''
+        tweet_text_pattern = '''/div[@class="js-tweet-text-container"]//text()'''
+        tweet_links_list_pattern = '''/div[@class="js-tweet-text-container"]//a'''
+        
+        tweet_reply_count_pattern = '''/div[@class="stream-item-footer"]/div/span[contains(@class, "ProfileTweet-action--reply")]/span/span/@data-tweet-stat-count'''
+
         tweet_list = html_tree.xpath(tweets_pattern)
 
         for tweet in tweet_list:
-            print(tweet)
+            item_id = tweet.attrib['data-item-id']
+            item_type = tweet.attrib['data-item-type']
+            tweet_id = tweet.getchildren()[0].attrib['data-tweet-id']
+            tweet_author = tweet.getchildren()[0].attrib['data-screen-name']
+            tweet_author_id = tweet.getchildren()[0].attrib['data-user-id']            
+
+            logger.debug("{0}:{1}:{2}-{3}:{4}".format(item_id, item_type, tweet_id, tweet_author, tweet_author_id))
 
 
     except KeyError:
