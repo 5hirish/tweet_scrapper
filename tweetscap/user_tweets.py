@@ -54,17 +54,20 @@ def get_tweet(save_json=False):
         tweets_pattern = '''/html/body/li[contains(@class,"stream-item")]'''        
 
         tweet_content_pattern = '''./div[@class="content"]'''
-        tweet_time_ms_pattern = '''./div[@class="stream-item-header"]/small[@class="time"]/a[contains(@class,"tweet-timestamp")]'''
+        tweet_time_ms_pattern = '''./div[@class="stream-item-header"]/small[@class="time"]/a[contains(@class,"tweet-timestamp")]/span'''
         tweet_text_pattern = '''./div[@class="js-tweet-text-container"]//text()'''
         tweet_links_list_pattern = '''./div[@class="js-tweet-text-container"]//a'''
         
-        tweet_reply_count_pattern = '''/div[@class="stream-item-footer"]/div/span[contains(@class, "ProfileTweet-action--reply")]/span/span/@data-tweet-stat-count'''
+        tweet_reply_count_pattern = '''./div[@class="stream-item-footer"]/div/span[contains(@class, "ProfileTweet-action--reply")]/span'''
+        tweet_like_count_pattern = '''./div[@class="stream-item-footer"]/div/span[contains(@class, "ProfileTweet-action--favorite")]/span'''
+        tweet_retweet_count_pattern = '''./div[@class="stream-item-footer"]/div/span[contains(@class, "ProfileTweet-action--retweet")]/span'''
 
         tweet_list = html_tree.xpath(tweets_pattern)
 
         for tweet in tweet_list:
             item_id = tweet.attrib['data-item-id']
             item_type = tweet.attrib['data-item-type']
+            
             if len(tweet.getchildren()) > 0:
                 tweet_data = tweet.getchildren()[0]
                 tweet_id = tweet_data.attrib['data-tweet-id']
@@ -72,7 +75,7 @@ def get_tweet(save_json=False):
                 tweet_author_id = tweet_data.attrib['data-user-id']
             
                 tweet_content = tweet_data.xpath(tweet_content_pattern)
-                tweet_time_span = tweet_content[0].xpath(tweet_time_ms_pattern)[0].attrib['title']       # @data-time-ms     
+                tweet_time_span = tweet_content[0].xpath(tweet_time_ms_pattern)[0].attrib['data-time-ms']       # @data-time-ms     
 
                 logger.debug("{0}:{1}:{2}-{3}:{4}-{5}".format(item_id, item_type, tweet_id, tweet_author, tweet_author_id, tweet_time_span))
 
@@ -92,6 +95,15 @@ def get_tweet(save_json=False):
                         tweet_mentions.append(raw_url)
 
                 logger.debug("{0}:\t{1}:{2}:{3}".format(tweet_text, tweet_links_ext, tweet_hashtags, tweet_mentions))
+
+                tweet_replies = tweet_content[0].xpath(tweet_reply_count_pattern)
+                tweet_replies_count = tweet_replies[0].attrib['data-tweet-stat-count']
+                tweet_likes = tweet_content[0].xpath(tweet_like_count_pattern)
+                tweet_likes_count = tweet_likes[0].attrib['data-tweet-stat-count']
+                tweet_retweets = tweet_content[0].xpath(tweet_retweet_count_pattern)
+                tweet_retweets_count = tweet_retweets[0].attrib['data-tweet-stat-count']
+
+                logger.debug("Replies={0}:Retweets={1}:Likes={2}".format(tweet_replies_count, tweet_retweets_count, tweet_likes_count))
 
 
     except KeyError:
