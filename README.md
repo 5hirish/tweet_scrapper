@@ -4,8 +4,8 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5924d3402a2c43d0bf7affa6863872f6)](https://www.codacy.com/app/5hirish/tweet_scrapper?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=5hirish/tweet_scrapper&amp;utm_campaign=Badge_Grade)
 [![codecov](https://codecov.io/gh/5hirish/tweet_scrapper/branch/master/graph/badge.svg)](https://codecov.io/gh/5hirish/tweet_scrapper)
 [![Build Status](https://travis-ci.org/5hirish/tweet_scrapper.svg?branch=master)](https://travis-ci.org/5hirish/tweet_scrapper)
-[![Current Release Version](https://img.shields.io/github/release/5hirish/tweet_scrapper.svg?style=flat-square)](https://github.com/5hirish/tweet_scrapper/releases)
-[![pypi Version](https://img.shields.io/pypi/v/tweetscrape.svg?style=flat-square)](https://pypi.python.org/pypi/tweetscrape)
+[![Current Release Version](https://img.shields.io/github/release/5hirish/tweet_scrapper.svg)](https://github.com/5hirish/tweet_scrapper/releases)
+[![pypi Version](https://img.shields.io/pypi/v/tweetscrape.svg)](https://pypi.python.org/pypi/tweetscrape)
 [![Twitter](https://img.shields.io/twitter/follow/openebs.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=5hirish)
 
 
