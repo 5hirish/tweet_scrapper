@@ -1,7 +1,7 @@
 Tweet Scrapper
 ==============
 
-|License: GPL v3| |Codacy Badge| |codecov| |Build Status| |Twitter|
+|License: GPL v3| |Codacy Badge| |codecov| |Build Status| |pypi Version| |Current Release Version| |Twitter|
 
 Twitter’s API is annoying to work with, and has lots of limitations —
 luckily their frontend (JavaScript) has it’s own API, which I
@@ -132,5 +132,9 @@ Maintainers
    :target: https://codecov.io/gh/5hirish/tweet_scrapper
 .. |Build Status| image:: https://travis-ci.org/5hirish/tweet_scrapper.svg?branch=master
    :target: https://travis-ci.org/5hirish/tweet_scrapper
+.. |Current Release Version| image:: https://img.shields.io/github/release/5hirish/tweet_scrapper.svg?style=flat-square
+    :target: https://github.com/5hirish/tweet_scrapper/releases
+.. |pypi Version| image:: https://img.shields.io/pypi/v/tweetscrape.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/tweetscrape
 .. |Twitter| image:: https://img.shields.io/twitter/follow/openebs.svg?style=social&label=Follow
    :target: https://twitter.com/intent/follow?screen_name=5hirish
