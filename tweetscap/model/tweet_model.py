@@ -18,6 +18,10 @@ class TweetInfo:
     def __init__(self, tweet_id, tweet_type):
         self.__tweet_id__ = tweet_id
         self.__tweet_type__ = tweet_type
+        self.__tweet_links__ = []
+        self.__tweet_hashtags__ = []
+        self.__tweet_mentions__ = []
+        
 
     def get_tweet_id(self):
         return self.__tweet_id__
@@ -65,20 +69,25 @@ class TweetInfo:
     def get_tweet_mentions(self):
         return self.__tweet_mentions__
     
-    def set_tweet_replies_count(self, tweet_replies_count):
+    def set_tweet_interactions(self, tweet_replies_count, tweet_favorite_count, tweet_retweet_count):
         self.__tweet_replies_count__ = tweet_replies_count
+        self.__tweet_favorite_count__ = tweet_favorite_count
+        self.__tweet_retweet_count__ = tweet_retweet_count        
     
     def get_tweet_replies_count(self):
         return self.__tweet_replies_count__
-
-    def set_tweet_favorite_count(self, tweet_favorite_count):
-        self.__tweet_favorite_count__ = tweet_favorite_count
     
     def get_tweet_favorite_count(self):
         return self.__tweet_favorite_count__
     
-    def set_tweet_retweet_count(self, tweet_retweet_count):
-        self.__tweet_retweet_count__ = tweet_retweet_count
-    
     def get_tweet_retweet_count(self):
         return self.__tweet_retweet_count__
+
+    def __str__(self):
+        return "Id:"+self.get_tweet_id()+"\tType:"+self.get_tweet_type()+"\tTime:"+self.get_tweet_time_ms()+\
+        "\nAuthor:"+self.get_tweet_author()+"\tAuthorId:"+self.get_tweet_author_id()+\
+        "\nText:"+self.get_tweet_text()+\
+        "\nLinks:"+str(self.get_tweet_links())+\
+        "\nHastags:"+str(self.get_tweet_hastags())+\
+        "\nMentions:"+str(self.get_tweet_mentions())+\
+        "\nReplies:"+self.get_tweet_replies_count()+"\tFavorites:"+self.get_tweet_favorite_count()+"\tRetweets:"+self.get_tweet_retweet_count()+"\n"

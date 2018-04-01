@@ -6,7 +6,7 @@ import sys
 import logging
 
 from tweetscap import __version__
-from tweetscap.user_tweets import fetch_user_tweets
+from tweetscap.user_tweets import TweetScrapper
 
 __author__ = "Shirish Kadam"
 __copyright__ = "Copyright (C) 2018  Shirish Kadam"
@@ -36,6 +36,11 @@ def parse_args(args):
         help="Username of the twitter profile eg.@5hirish",
         type=str,
         metavar="@5hirish")
+    parser.add_argument(
+        '-p',
+        dest="pages",
+        help="Number of pages to fetch, maximum is 25",
+        type=str)    
     parser.add_argument(
         '-v',
         '--verbose',
@@ -72,9 +77,9 @@ def main(args):
     """
     args = parse_args(args)
     setup_logging(args.loglevel)
-    _logger.debug("Scrapping tweets for {0}".format(user))
-    fetch_user_tweets(args.username)
-    # _logger.info("Script ends here")
+    _logger.debug("Scrapping tweets for {0}".format(args.username))
+    ts = TweetScrapper(args.username, args.pages)
+    return ts.get_user_tweets(False)
 
 
 def run():
