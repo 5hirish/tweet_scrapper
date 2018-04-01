@@ -35,12 +35,13 @@ def parse_args(args):
         dest="username",
         help="Username of the twitter profile eg.@5hirish",
         type=str,
-        metavar="@5hirish")
+        metavar="")
     parser.add_argument(
         '-p',
         dest="pages",
         help="Number of pages to fetch, maximum is 25",
-        type=int)    
+        type=int,
+        metavar="")    
     parser.add_argument(
         '-v',
         '--verbose',
@@ -83,7 +84,10 @@ def main(args):
             ts = TweetScrapper(args.username, args.pages)
         else:
             ts = TweetScrapper(args.username)
-        return ts.get_user_tweets(False)
+        tweets = ts.get_user_tweets(False)
+        for tweet in tweets:
+            print(str(tweet))
+        return tweets
     else:
         raise ValueError("Provide a twitter username eg. @5hirish")
 
