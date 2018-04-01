@@ -5,8 +5,8 @@ import argparse
 import sys
 import logging
 
-from tweetscap import __version__
-from tweetscap.user_tweets import TweetScrapper
+from tweetscrape import __version__
+from tweetscrape.user_tweets import TweetScrapper
 
 __author__ = "Shirish Kadam"
 __copyright__ = "Copyright (C) 2018  Shirish Kadam"

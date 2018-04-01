@@ -6,7 +6,7 @@ import re
 import os
 import requests
 
-from tweetscap.model.tweet_model import TweetInfo
+from tweetscrape.model.tweet_model import TweetInfo
 
 """
 Parsing with XPath 1.0 query
