@@ -60,7 +60,7 @@ class TweetInfo:
     def set_tweet_hashtags(self, tweet_hashtag):
         self.__tweet_hashtags__.append(tweet_hashtag)
 
-    def get_tweet_hastags(self):
+    def get_tweet_hashtags(self):
         return self.__tweet_hashtags__
     
     def set_tweet_mentions(self, tweet_mention):
@@ -88,6 +88,6 @@ class TweetInfo:
         "\nAuthor:"+self.get_tweet_author()+"\tAuthorId:"+self.get_tweet_author_id()+\
         "\nText:"+self.get_tweet_text()+\
         "\nLinks:"+str(self.get_tweet_links())+\
-        "\nHastags:"+str(self.get_tweet_hastags())+\
+        "\nHastags:"+str(self.get_tweet_hashtags())+\
         "\nMentions:"+str(self.get_tweet_mentions())+\
         "\nReplies:"+self.get_tweet_replies_count()+"\tFavorites:"+self.get_tweet_favorite_count()+"\tRetweets:"+self.get_tweet_retweet_count()+"\n"

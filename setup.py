@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-    Setup file for tweetscap.
+    Setup file for tweetscrape.
 
     This file was generated with PyScaffold 3.0.2.
     PyScaffold helps you to put up the scaffold of your new Python project.
@@ -9,18 +9,29 @@
 """
 
 import sys
+import os
+import io
+import contextlib
 from setuptools import setup
 
-# Add here console scripts and other entry points in ini-style format
-entry_points = """
+@contextlib.contextmanager
+def chdir(new_dir):
+    old_dir = os.getcwd()
+    try:
+        os.chdir(new_dir)
+        sys.path.insert(0, new_dir)
+        yield
+    finally:
+        del sys.path[0]
+        os.chdir(old_dir)
 
 
 def setup_package():
-    needs_sphinx = {'build_sphinx', 'upload_docs'}.intersection(sys.argv)
-    sphinx = ['sphinx'] if needs_sphinx else []
-    setup(setup_requires=['pyscaffold>=3.0a0,<3.1a0'] + sphinx,
-          entry_points=entry_points,
-          use_pyscaffold=True)
+
+    base_dir = os.path.abspath(os.path.dirname(__file__))
+    setup_config = base_dir+'/setup.cfg'
+    
+    setup(setup_cfg=True)
 
 
 if __name__ == "__main__":
