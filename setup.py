@@ -13,11 +13,6 @@ from setuptools import setup
 
 # Add here console scripts and other entry points in ini-style format
 entry_points = """
-[console_scripts]
-# script_name = tweetscap.module:function
-# For example:
-# fibonacci = tweetscap.skeleton:run
-"""
 
 
 def setup_package():

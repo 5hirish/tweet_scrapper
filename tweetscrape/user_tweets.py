@@ -50,7 +50,7 @@ class TweetScrapper:
 
     _tweet_hastag_pattern_ = r'''/hashtag/([0-9a-zA-Z_]*)\?src=hash'''
 
-    def __init__(self, username, pages=1):
+    def __init__(self, username, pages=2):
         self.username = username
         if pages > 25:
             self.pages = 25
