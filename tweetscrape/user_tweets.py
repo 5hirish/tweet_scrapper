@@ -25,16 +25,8 @@ class TweetScrapper:
     pages = 0
     tweets_data_list = []
 
-    __twitter_profile_url__ = 'https://twitter.com/i/profiles/show/{username}/timeline/tweets?include_available_features=1&include_entities=1&include_new_items_bar=true'.format(username=username)
-    __twitter_profile_header__ = {
-        'accept':'application/json, text/javascript, */*; q=0.01',
-        'accept-language':'en-US,en;q=0.8',
-        'referer':'https://twitter.com/{username}'.format(username=username),
-        'user-agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.78 Safari/537.36',
-        'x-requested-with':'XMLHttpRequest',
-        'x-twitter-active-user':'yes',
-        'x-twitter-polling':'true',
-    }
+    __twitter_profile_url__ = None
+    __twitter_profile_header__ = None
     __twitter_profile_params__ = None
 
     _tweets_pattern_ = '''/html/body/li[contains(@class,"stream-item")]'''        
@@ -56,6 +48,18 @@ class TweetScrapper:
             self.pages = 25
         else:
             self.pages = pages
+
+        self.__twitter_profile_url__ = 'https://twitter.com/i/profiles/show/{username}/timeline/tweets?include_available_features=1&include_entities=1&include_new_items_bar=true'.format(
+            username=self.username)
+        self.__twitter_profile_header__ = {
+            'accept': 'application/json, text/javascript, */*; q=0.01',
+            'accept-language': 'en-US,en;q=0.8',
+            'referer': 'https://twitter.com/{username}'.format(username=self.username),
+            'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.78 Safari/537.36',
+            'x-requested-with': 'XMLHttpRequest',
+            'x-twitter-active-user': 'yes',
+            'x-twitter-polling': 'true',
+        }
 
     def get_user_tweets(self, save_json=False):
 
@@ -161,7 +165,7 @@ def save_output(filename, data):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    ts = TweetScrapper("5hirish", 2)
+    ts = TweetScrapper("BarackObama", 2)
     l_extracted_tweets = ts.get_user_tweets(True)
     for l_tweet in l_extracted_tweets:
         print(str(l_tweet))
