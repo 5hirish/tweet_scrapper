@@ -4,7 +4,7 @@ from tweetscrape.user_tweets import TweetScrapper
 
 class UserTweetsTest(TestCase):
     
-    test_users = ["@BarackObama", "@fchollet", "@Kasparov63", "@ShashiTharoor", "@EdwardSnowden", "@StephenColbert", "@HamillHimself"]    
+    test_users = ["@BarackObama", "@fchollet", "@Kasparov63", "@ShashiTharoor", "@EdwardSnowden", "@colbertlateshow", "@HamillHimself"]
     test_pages = 2
     
     def test_user_tweets(self):    
