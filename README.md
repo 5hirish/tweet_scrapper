@@ -13,7 +13,7 @@ Twitter's API is annoying to work with, and has lots of limitations — luckily 
 
 You can use this library to get the text of any user's Tweets trivially. Follow the creator's blog at [shirishkadam.com](https://shirishkadam.com) for updates on progress.
 
-> This project is inspired from Kenneth Reitz's similar project [kennethreitz/twitter-scraper](https://github.com/kennethreitz/twitter-scraper) which is limited to python 3.6 an above.
+> This project is inspired from Kenneth Reitz's similar project [kennethreitz/twitter-scraper](https://github.com/kennethreitz/twitter-scraper) which is limited to python 3.6 and above.
 
 ## Getting Started
 

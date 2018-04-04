@@ -12,7 +12,7 @@ Follow the creator’s blog at `shirishkadam.com`_ for updates on
 progress.
 
     This project is inspired from Kenneth Reitz’s similar project
-    `kennethreitz/twitter-scraper`_ which is limited to python 3.6 an
+    `kennethreitz/twitter-scraper`_ which is limited to python 3.6 and
     above.
 
 Getting Started
