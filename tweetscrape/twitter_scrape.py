@@ -96,7 +96,7 @@ def main(args):
             print(str(tweet))
         return tweets
 
-    elif args.search_term is not None and args.search_term.startswih("#"):
+    elif args.search_term is not None:
         if args.pages is not None:
             ts = TweetScrapperSearch(args.search_term, args.pages)
         else:
