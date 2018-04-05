@@ -20,6 +20,9 @@ You can use this library to get the text of any user's Tweets trivially. Follow 
 ```bash
 $ pip install tweetscrape
 $ python -m tweetscrape.twitter_scrape -u "@5hirish" -p 3
+$ python -m tweetscrape.twitter_scrape -s "#Python" -p 4
+$ python -m tweetscrape.twitter_scrape -s "Avengers Infinity War" -p 2
+
 ```
 
 ## Usage
@@ -92,6 +95,7 @@ Python Package dependencies listed in [requirements.txt](requirements.txt)
 ### TODO
 
 - [x] Extract tweets from a twitter user's profile
+- [x] Extract tweets from twitter search
 - [ ] Extract tweets from a twitter thread, given the thread link
 - [ ] Extract the quoted tweet along with a tweet
 

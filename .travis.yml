@@ -15,7 +15,6 @@ os:
 branches:
   only:
   - master
-  - dev
 
 before_install:
   - pip install -r requirements-test.txt

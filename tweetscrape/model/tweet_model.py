@@ -21,7 +21,6 @@ class TweetInfo:
         self.__tweet_links__ = []
         self.__tweet_hashtags__ = []
         self.__tweet_mentions__ = []
-        
 
     def get_tweet_id(self):
         return self.__tweet_id__
