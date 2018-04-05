@@ -56,8 +56,9 @@ class TweetScrapper:
                                     tweet_data.set_tweet_links(raw_url)
                                 elif raw_url.startswith('/hashtag/'):
                                     hash_tag_group = re.match(hastag_capture, raw_url)
-                                    hash_tag = "#" + hash_tag_group.group(1)
-                                    tweet_data.set_tweet_hashtags(hash_tag)
+                                    if hash_tag_group is not None and hash_tag_group.group(1) is not None:
+                                        hash_tag = "#" + hash_tag_group.group(1)
+                                        tweet_data.set_tweet_hashtags(hash_tag)
                                 else:
                                     mention = raw_url.replace('/', '@')
                                     tweet_data.set_tweet_mentions(mention)
