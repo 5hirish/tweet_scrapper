@@ -8,10 +8,10 @@ from tweetscrape.tweets_scrape import TweetScrapper
 """
 Parsing with XPath 1.0 query
 XPath Documentation : https://developer.mozilla.org/en-US/docs/Web/XPath
-The '.' at the beginning means, that the current processing starts at the current node. 
+The '.' at the beginning means, that the current processing starts at the current node.
 Your xpath starts with a slash '/' and is therefore absolute.
 The '*' selects all element nodes descending from this current node with the @id-attribute-value or @class value'.
-The '//' identifies any descendant designation element of element 
+The '//' identifies any descendant designation element of element
 """
 
 logger = logging.getLogger(__name__)
@@ -68,7 +68,7 @@ class TweetScrapperProfile(TweetScrapper):
 
             tweet_json = response.json()
 
-            try: 
+            try:
                 if tweet_json['has_more_items']:
                     num_new_tweets = tweet_json['new_latent_count']
                 
@@ -78,7 +78,7 @@ class TweetScrapperProfile(TweetScrapper):
                     save_output('/'+self.username+'_profile.json', str(tweet_json))
                     save_output('/'+self.username+'_profile.html', tweets_html)
 
-                parser = etree.HTMLParser(remove_blank_text=True, remove_comments=True)        
+                parser = etree.HTMLParser(remove_blank_text=True, remove_comments=True)
                 html_tree = etree.fromstring(tweets_html, parser)
 
                 tweet_list = html_tree.xpath(self._tweets_pattern_)
@@ -94,7 +94,7 @@ class TweetScrapperProfile(TweetScrapper):
             last_tweet_id = self.tweets_data_list[len(self.tweets_data_list) - 1].get_tweet_id()
             self.__twitter_profile_params__ = {'max_position': last_tweet_id}
 
-        logger.info("Total {0} tweets extracted.".format(len(self.tweets_data_list)))   
+        logger.info("Total {0} tweets extracted.".format(len(self.tweets_data_list)))
         return self.tweets_data_list
                         
         

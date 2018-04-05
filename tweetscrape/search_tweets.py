@@ -81,7 +81,7 @@ class TweetScrapperSearch(TweetScrapper):
                 logger.debug("Extracting {0} tweets of {1} page...".format(len(tweet_list), total_pages - self.pages + 1))
 
             except KeyError:
-                raise ValueError("Oops! Something went wrong when searching.".format(self.search_term))
+                raise ValueError("Oops! Something went wrong when searching {0}.".format(self.search_term))
 
             self.pages += -1
             last_tweet_id = self.tweets_data_list[len(self.tweets_data_list) - 1].get_tweet_id()
