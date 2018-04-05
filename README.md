@@ -28,10 +28,10 @@ $ python -m tweetscrape.twitter_scrape -s "Avengers Infinity War" -p 2
 ## Usage
 
 ```python
-from tweetscrape.user_tweets import TweetScrapper 
+from tweetscrape.profile_tweets import TweetScrapperProfile 
 
-tweet_scrapper = TweetScrapper("@5hirish", 1)
-tweets = tweet_scrapper.get_user_tweets()
+tweet_scrapper = TweetScrapperProfile("@5hirish", 1)
+tweets = tweet_scrapper.get_profile_tweets()
 for tweet in tweets:
     print(str(tweet))
 ```
