@@ -1,11 +1,20 @@
 import re
+import os
+import requests
+import logging
+from lxml import etree
 
 from tweetscrape.model.tweet_model import TweetInfo
+
+logger = logging.getLogger(__name__)
 
 
 class TweetScrapper:
 
     tweets_data_list = []
+    __twitter_request_url__ = None
+    __twitter_request_header__ = None
+    __twitter_request_params__ = None
 
     _tweets_pattern_ = '''/html/body/li[contains(@class,"stream-item")]'''
 
@@ -23,6 +32,63 @@ class TweetScrapper:
                                             span[contains(@class, "ProfileTweet-action--retweet")]/span'''
 
     _tweet_hastag_pattern_ = r'''/hashtag/([0-9a-zA-Z_]*)\?src=hash'''
+
+    def __init__(self, twitter_request_url, twitter_request_header, twitter_request_params=None):
+        self.__twitter_request_url__ = twitter_request_url
+        self.__twitter_request_header__ = twitter_request_header
+        self.__twitter_profile_params__ = twitter_request_params
+
+    def execute_twitter_request(self, username=None, search_term=None, pages=2, log_output=False, output_file=None):
+        hastag_capture = re.compile(self._tweet_hastag_pattern_)
+        total_pages = pages
+
+        while pages > 0:
+
+            if self.__twitter_profile_params__ is not None:
+                response = requests.get(self.__twitter_request_url__,
+                                        headers=self.__twitter_request_header__,
+                                        params=self.__twitter_profile_params__)
+            else:
+                response = requests.get(self.__twitter_request_url__, headers=self.__twitter_request_header__)
+
+            logger.debug("Page {0} request: {1}".format(pages, response.status_code))
+
+            tweet_json = response.json()
+
+            try:
+                if tweet_json['has_more_items']:
+                    num_new_tweets = tweet_json['new_latent_count']
+
+                tweets_html = tweet_json['items_html']
+
+                if log_output:
+                    # save_output(output_file + '.json', str(tweet_json))
+                    save_output(output_file + '.html', tweets_html)
+
+                parser = etree.HTMLParser(remove_blank_text=True, remove_comments=True)
+                html_tree = etree.fromstring(tweets_html, parser)
+
+                tweet_list = html_tree.xpath(self._tweets_pattern_)
+
+                self.extract_tweets_data(tweet_list, hastag_capture)
+
+                logger.debug(
+                    "Extracting {0} tweets of {1} page...".format(len(tweet_list), total_pages - pages + 1))
+
+            except KeyError:
+                if search_term is not None:
+                    raise ValueError("Oops! Something went wrong while searching {0}.".format(search_term))
+                elif username is not None:
+                    raise ValueError("Oops! Either {0} does not exist or is private.".format(username))
+                else:
+                    raise ValueError("Received no arguments")
+
+            pages += -1
+            last_tweet_id = self.tweets_data_list[len(self.tweets_data_list) - 1].get_tweet_id()
+            self.__twitter_profile_params__ = {'max_position': last_tweet_id}
+
+        logger.info("Total {0} tweets extracted.".format(len(self.tweets_data_list)))
+        return self.tweets_data_list
 
     def extract_tweets_data(self, tweet_list, hastag_capture):
         if tweet_list is not None:
@@ -73,3 +139,10 @@ class TweetScrapper:
                             tweet_data.set_tweet_interactions(tweet_replies_count, tweet_likes_count, tweet_retweets_count)
 
                             self.tweets_data_list.append(tweet_data)
+
+
+def save_output(filename, data):
+    if filename is not None and data is not None:
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        with open(file_path+filename, 'w') as fp:
+            fp.write(data)

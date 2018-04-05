@@ -27,7 +27,6 @@ class TweetScrapperProfile(TweetScrapper):
     __twitter_profile_params__ = None
 
     def __init__(self, username, pages=2):
-        super().__init__()
 
         self.username = username
         if pages > 25:
@@ -50,59 +49,13 @@ class TweetScrapperProfile(TweetScrapper):
             'x-twitter-polling': 'true',
         }
 
-    def get_profile_tweets(self, save_json=False):
+        super().__init__(twitter_request_url=self.__twitter_profile_url__,
+                         twitter_request_header=self.__twitter_profile_header__)
 
-        hastag_capture = re.compile(self._tweet_hastag_pattern_)
-        total_pages = self.pages
-
-        while self.pages > 0:
-
-            if self.__twitter_profile_params__ is not None:
-                response = requests.get(self.__twitter_profile_url__,
-                                        headers=self.__twitter_profile_header__,
-                                        params=self.__twitter_profile_params__)
-            else:
-                response = requests.get(self.__twitter_profile_url__, headers=self.__twitter_profile_header__)
-                
-            logger.debug("Page {0} request: {1}".format(self.pages, response.status_code))
-
-            tweet_json = response.json()
-
-            try:
-                if tweet_json['has_more_items']:
-                    num_new_tweets = tweet_json['new_latent_count']
-                
-                tweets_html = tweet_json['items_html']
-
-                if save_json:
-                    save_output('/'+self.username+'_profile.json', str(tweet_json))
-                    save_output('/'+self.username+'_profile.html', tweets_html)
-
-                parser = etree.HTMLParser(remove_blank_text=True, remove_comments=True)
-                html_tree = etree.fromstring(tweets_html, parser)
-
-                tweet_list = html_tree.xpath(self._tweets_pattern_)
-
-                self.extract_tweets_data(tweet_list, hastag_capture)
-
-                logger.debug("Extracting {0} tweets of {1} page...".format(len(tweet_list), total_pages - self.pages + 1))
-
-            except KeyError:
-                raise ValueError("Oops! Either {0} does not exist or is private.".format(self.username))
-            
-            self.pages += -1
-            last_tweet_id = self.tweets_data_list[len(self.tweets_data_list) - 1].get_tweet_id()
-            self.__twitter_profile_params__ = {'max_position': last_tweet_id}
-
-        logger.info("Total {0} tweets extracted.".format(len(self.tweets_data_list)))
-        return self.tweets_data_list
-                        
-        
-def save_output(filename, data):
-    if filename is not None and data is not None:
-        file_path = os.path.dirname(os.path.realpath(__file__))
-        with open(file_path+filename, 'w') as fp:
-            fp.write(data)
+    def get_profile_tweets(self, save_output=False):
+        output_file_name = '/'+self.username+'_profile'
+        return self.execute_twitter_request(username=self.username, pages=self.pages,
+                                     log_output=save_output, output_file=output_file_name)
 
 
 if __name__ == '__main__':
