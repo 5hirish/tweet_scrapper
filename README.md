@@ -13,13 +13,16 @@ Twitter's API is annoying to work with, and has lots of limitations — luckily 
 
 You can use this library to get the text of any user's Tweets trivially. Follow the creator's blog at [shirishkadam.com](https://shirishkadam.com) for updates on progress.
 
-> This project is inspired from Kenneth Reitz's similar project [kennethreitz/twitter-scraper](https://github.com/kennethreitz/twitter-scraper) which is limited to python 3.6 an above.
+> This project is inspired from Kenneth Reitz's similar project [kennethreitz/twitter-scraper](https://github.com/kennethreitz/twitter-scraper) which is limited to python 3.6 and above.
 
 ## Getting Started
 
 ```bash
 $ pip install tweetscrape
 $ python -m tweetscrape.twitter_scrape -u "@5hirish" -p 3
+$ python -m tweetscrape.twitter_scrape -s "#Python" -p 4
+$ python -m tweetscrape.twitter_scrape -s "Avengers Infinity War" -p 2
+
 ```
 
 ## Usage
@@ -92,6 +95,7 @@ Python Package dependencies listed in [requirements.txt](requirements.txt)
 ### TODO
 
 - [x] Extract tweets from a twitter user's profile
+- [x] Extract tweets from twitter search
 - [ ] Extract tweets from a twitter thread, given the thread link
 - [ ] Extract the quoted tweet along with a tweet
 

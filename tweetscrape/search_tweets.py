@@ -101,8 +101,8 @@ def save_output(filename, data):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
-    # ts = TweetScrapperSearch("avengers", "typd")
-    ts = TweetScrapperSearch("#avengers", "hash")
+    ts = TweetScrapperSearch("avengers infinity war", "typd")
+    # ts = TweetScrapperSearch("#avengers", "hash")
     l_extracted_tweets = ts.get_search_tweets(True)
     for l_tweet in l_extracted_tweets:
         print(str(l_tweet))

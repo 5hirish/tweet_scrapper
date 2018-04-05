@@ -12,7 +12,7 @@ Follow the creator’s blog at `shirishkadam.com`_ for updates on
 progress.
 
     This project is inspired from Kenneth Reitz’s similar project
-    `kennethreitz/twitter-scraper`_ which is limited to python 3.6 an
+    `kennethreitz/twitter-scraper`_ which is limited to python 3.6 anc
     above.
 
 Getting Started
@@ -24,6 +24,8 @@ Getting Started
     $ cd tweet_scrapper
     $ pip install -r requirements.txt
     $ python -m tweetscrape.twitter_scrape -u "@5hirish" -p 3
+    $ python -m tweetscrape.twitter_scrape -s "#Python" -p 4
+    $ python -m tweetscrape.twitter_scrape -s "Avengers Infinity War" -p 2
 
 Usage
 -----
@@ -101,6 +103,7 @@ TODO
 ~~~~
 
 -  [x] Extract tweets from a twitter user’s profile
+-  [x] Extract tweets from twitter search
 -  [ ] Extract tweets from a twitter thread, given the thread link
 -  [ ] Extract the quoted tweet along with a tweet
 
