@@ -7,6 +7,7 @@ import logging
 
 from tweetscrape import __version__
 from tweetscrape.profile_tweets import TweetScrapperProfile
+from tweetscrape.search_tweets import TweetScrapperSearch
 
 __author__ = "Shirish Kadam"
 __copyright__ = "Copyright (C) 2018  Shirish Kadam"
@@ -33,7 +34,13 @@ def parse_args(args):
     parser.add_argument(
         '-u',
         dest="username",
-        help="Username of the twitter profile eg.@5hirish",
+        help="Username of the twitter profile eg. @5hirish",
+        type=str,
+        metavar="")
+    parser.add_argument(
+        '-s',
+        dest="search_term",
+        help="Search term or titter hashtag eg. #Python",
         type=str,
         metavar="")
     parser.add_argument(
@@ -79,7 +86,7 @@ def main(args):
     args = parse_args(args)
     setup_logging(args.loglevel)
     _logger.info("Scrapping tweets for {0}".format(args.username))
-    if args.username.startswith("@"):
+    if args.username is not None and args.username.startswith("@"):
         if args.pages is not None:
             ts = TweetScrapperProfile(args.username, args.pages)
         else:
@@ -88,8 +95,27 @@ def main(args):
         for tweet in tweets:
             print(str(tweet))
         return tweets
+    elif args.search_term is not None and args.search_term.startswih("#"):
+        if args.pages is not None:
+            ts = TweetScrapperSearch(args.search_term, "hash", args.pages)
+        else:
+            ts = TweetScrapperSearch(args.search_term, "hash")
+        tweets = ts.get_search_tweets(False)
+        for tweet in tweets:
+            print(str(tweet))
+        return tweets
+    elif args.search_term is not None:
+        if args.pages is not None:
+            ts = TweetScrapperSearch(args.search_term, "typd", args.pages)
+        else:
+            ts = TweetScrapperSearch(args.search_term, "typd")
+        tweets = ts.get_search_tweets(False)
+        for tweet in tweets:
+            print(str(tweet))
+        return tweets
     else:
-        raise ValueError("Provide a twitter username eg. @5hirish")
+        raise ValueError("No matching argument. Provide a twitter username eg. -u @5hirish or"
+                         " a twitter hashtag eg. -s #Python or any search term.")
 
 
 def run():
