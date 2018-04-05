@@ -95,24 +95,17 @@ def main(args):
         for tweet in tweets:
             print(str(tweet))
         return tweets
+
     elif args.search_term is not None and args.search_term.startswih("#"):
         if args.pages is not None:
-            ts = TweetScrapperSearch(args.search_term, "hash", args.pages)
+            ts = TweetScrapperSearch(args.search_term, args.pages)
         else:
-            ts = TweetScrapperSearch(args.search_term, "hash")
+            ts = TweetScrapperSearch(args.search_term)
         tweets = ts.get_search_tweets(False)
         for tweet in tweets:
             print(str(tweet))
         return tweets
-    elif args.search_term is not None:
-        if args.pages is not None:
-            ts = TweetScrapperSearch(args.search_term, "typd", args.pages)
-        else:
-            ts = TweetScrapperSearch(args.search_term, "typd")
-        tweets = ts.get_search_tweets(False)
-        for tweet in tweets:
-            print(str(tweet))
-        return tweets
+
     else:
         raise ValueError("No matching argument. Provide a twitter username eg. -u @5hirish or"
                          " a twitter hashtag eg. -s #Python or any search term.")

@@ -11,7 +11,7 @@ class UserTweetsTest(TestCase):
     def test_search_tweets(self):
         for search_term in self.test_search:
             with self.subTest(i=search_term):
-                ts = TweetScrapperSearch(search_term, "typd", self.test_pages)
+                ts = TweetScrapperSearch(search_term, self.test_pages)
                 extracted_tweets = ts.get_search_tweets(False)
                 assert len(extracted_tweets) > 0
                 for tweets in extracted_tweets:
@@ -21,9 +21,8 @@ class UserTweetsTest(TestCase):
     def test_hashtag_tweets(self):
         for hashtag in self.test_hashtags:
             with self.subTest(i=hashtag):
-                ts = TweetScrapperSearch(hashtag, "hash", self.test_pages)
+                ts = TweetScrapperSearch(hashtag, self.test_pages)
                 extracted_tweets = ts.get_search_tweets(False)
-                print(hashtag)
                 assert len(extracted_tweets) > 0
                 for tweets in extracted_tweets:
                     assert tweets.get_tweet_id() is not None

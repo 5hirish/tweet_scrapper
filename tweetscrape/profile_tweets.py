@@ -1,8 +1,4 @@
-import re
-import os
 import logging
-import requests
-from lxml import etree
 
 from tweetscrape.tweets_scrape import TweetScrapper
 """

@@ -16,11 +16,18 @@ class TweetScrapperSearch(TweetScrapper):
     __twitter_search_header__ = None
     __twitter_search_params__ = None
 
-    def __init__(self, search_term, search_type, pages=2):
-
+    def __init__(self, search_term, pages=2):
         self.search_term = parse.quote(search_term)
-        self.search_type = search_type
-        self.pages = pages
+
+        if search_term.startswith("#"):
+            self.search_type = "hash"
+        else:
+            self.search_type = "typd"
+
+        if pages > 25:
+            self.pages = 25
+        else:
+            self.pages = pages
 
         self.__twitter_search_url__ = 'https://twitter.com/i/search/timeline' \
                                  '?vertical=default&q={search_term}&src={search_type}' \
@@ -51,7 +58,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
     # ts = TweetScrapperSearch("avengers infinity war", "typd")
-    ts = TweetScrapperSearch("#FakeNews", "hash", 3)
+    ts = TweetScrapperSearch("#FakeNews", 3)
     l_extracted_tweets = ts.get_search_tweets(True)
     for l_tweet in l_extracted_tweets:
         print(str(l_tweet))
