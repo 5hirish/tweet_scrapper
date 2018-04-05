@@ -6,7 +6,7 @@ import sys
 import logging
 
 from tweetscrape import __version__
-from tweetscrape.user_tweets import TweetScrapper
+from tweetscrape.profile_tweets import TweetScrapperProfile
 
 __author__ = "Shirish Kadam"
 __copyright__ = "Copyright (C) 2018  Shirish Kadam"
@@ -81,10 +81,10 @@ def main(args):
     _logger.info("Scrapping tweets for {0}".format(args.username))
     if args.username.startswith("@"):
         if args.pages is not None:
-            ts = TweetScrapper(args.username, args.pages)
+            ts = TweetScrapperProfile(args.username, args.pages)
         else:
-            ts = TweetScrapper(args.username)
-        tweets = ts.get_user_tweets(False)
+            ts = TweetScrapperProfile(args.username)
+        tweets = ts.get_profile_tweets(False)
         for tweet in tweets:
             print(str(tweet))
         return tweets
