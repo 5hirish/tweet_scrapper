@@ -1,4 +1,5 @@
 import sqlite3
+import json
 
 
 class SQLiteHelper:
@@ -7,7 +8,7 @@ class SQLiteHelper:
     __table_name__ = 'tweets'
 
     def __init__(self):
-        self.__connection__ = sqlite3.connect('tweets.db')
+        self.__connection__ = sqlite3.connect('tweets.sqlite')
         self.create_table_if_exists()
 
     def get_cursor(self):
@@ -16,12 +17,13 @@ class SQLiteHelper:
         return self.__cursor__
 
     def create_table_if_exists(self):
-        create_table = '''CREATE TABLE IF NOT EXISTS '''+self.__table_name__+''' (
+        create_table = '''CREATE TABLE IF NOT EXISTS ''' + self.__table_name__ + ''' (
 				tweet_id INTEGER PRIMARY KEY, 
 				tweet_type VARCHAR(10), 
 				tweet_author TEXT, 
 				tweet_author_id INTEGER, 
-				tweet_time_ms INTEGER, 
+				tweet_time_ms BIGINT, 
+				tweet_text TEXT,
 				tweet_link TEXT, 
 				tweet_hastag TEXT, 
 				tweet_mentions TEXT, 
@@ -42,28 +44,30 @@ class SQLiteHelper:
                 tweet.get_tweet_author(),
                 tweet.get_tweet_author_id(),
                 tweet.get_tweet_time_ms(),
-                tweet.get_tweet_links(),
-                tweet.get_tweet_hashtags(),
-                tweet.get_tweet_mentions(),
+                tweet.get_tweet_text(),
+                json.dumps(tweet.get_tweet_links()),
+                json.dumps(tweet.get_tweet_hashtags()),
+                json.dumps(tweet.get_tweet_mentions()),
                 tweet.get_tweet_replies_count(),
                 tweet.get_tweet_favorite_count(),
                 tweet.get_tweet_retweet_count()
             )
             tweets_insert.append(tweet_tuple)
 
-	    insert_tweet_query = '''INSERT INTO '''+self.__table_name__+'''
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);'''
-        self.get_cursor().executemany(insert_tweet_query)
+        insert_tweet_query = '''INSERT OR IGNORE INTO ''' + self.__table_name__ + '''
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);'''
+        self.get_cursor().executemany(insert_tweet_query, tweets_insert)
+        self.__connection__.commit()
 
     def get_user_tweets(self, author=None, author_id=None):
         if author_id is not None:
-            fetch_tweets_query = '''SELECT * FROM '''+self.__table_name__+'''
+            fetch_tweets_query = '''SELECT * FROM ''' + self.__table_name__ + '''
                         WHERE tweet_author_id = ?'''
-            author_tup = (author_id, )
+            author_tup = (author_id,)
             self.get_cursor().execute(fetch_tweets_query, author_tup)
         else:
-            fetch_tweets_query = '''SELECT * FROM '''+self.__table_name__+'''
+            fetch_tweets_query = '''SELECT * FROM ''' + self.__table_name__ + '''
                         WHERE tweet_author = ?'''
-            author_tup = (author, )
+            author_tup = (author,)
             self.get_cursor().execute(fetch_tweets_query, author_tup)
         return self.get_cursor().fetchall()

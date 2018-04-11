@@ -58,22 +58,25 @@ class TweetScrapper:
             try:
                 if tweet_json['has_more_items']:
                     num_new_tweets = tweet_json['new_latent_count']
+                else:
+                    logger.info("No more items...!!!")
 
                 tweets_html = tweet_json['items_html']
 
                 if log_output:
-                    # save_output(output_file + '.json', str(tweet_json))
+                    #save_output(output_file + '.json', str(tweet_json))
                     save_output(output_file + '.html', tweets_html)
 
                 parser = etree.HTMLParser(remove_blank_text=True, remove_comments=True)
                 html_tree = etree.fromstring(tweets_html, parser)
 
-                tweet_list = html_tree.xpath(self._tweets_pattern_)
+                if html_tree is not None:
+                    tweet_list = html_tree.xpath(self._tweets_pattern_)
 
-                self.extract_tweets_data(tweet_list, hastag_capture)
+                    self.extract_tweets_data(tweet_list, hastag_capture)
 
-                logger.debug(
-                    "Extracting {0} tweets of {1} page...".format(len(tweet_list), total_pages - pages + 1))
+                    logger.debug(
+                        "Extracting {0} tweets of {1} page...".format(len(tweet_list), total_pages - pages + 1))
 
             except KeyError:
                 if search_term is not None:
@@ -84,8 +87,12 @@ class TweetScrapper:
                     raise ValueError("Received no arguments")
 
             pages += -1
-            last_tweet_id = self.tweets_data_list[len(self.tweets_data_list) - 1].get_tweet_id()
-            self.__twitter_profile_params__ = {'max_position': last_tweet_id}
+            if len(self.tweets_data_list) > 0:
+                last_tweet_id = self.tweets_data_list[len(self.tweets_data_list) - 1].get_tweet_id()
+                self.__twitter_profile_params__ = {'max_position': last_tweet_id}
+            else:
+                logger.info("End of tweet stream...")
+                return self.tweets_data_list
 
         logger.info("Total {0} tweets extracted.".format(len(self.tweets_data_list)))
         return self.tweets_data_list
