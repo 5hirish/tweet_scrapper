@@ -64,7 +64,7 @@ class TweetScrapper:
                 tweets_html = tweet_json['items_html']
 
                 if log_output:
-                    #save_output(output_file + '.json', str(tweet_json))
+                    # save_output(output_file + '.json', str(tweet_json))
                     save_output(output_file + '.html', tweets_html)
 
                 parser = etree.HTMLParser(remove_blank_text=True, remove_comments=True)
