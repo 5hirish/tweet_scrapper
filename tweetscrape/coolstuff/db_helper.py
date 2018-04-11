@@ -71,3 +71,8 @@ class SQLiteHelper:
             author_tup = (author,)
             self.get_cursor().execute(fetch_tweets_query, author_tup)
         return self.get_cursor().fetchall()
+
+    def get_all_tweets(self):
+        fetch_tweets_query = '''SELECT * FROM ''' + self.__table_name__
+        self.get_cursor().execute(fetch_tweets_query)
+        return self.get_cursor().fetchall()
