@@ -76,7 +76,7 @@ Python Package dependencies listed in [requirements.txt](requirements.txt)
 * Extracts external links, hashtags and mentions from a tweet
 * Extracts reply, favorite and retweet counts of a tweet
 
-### Cool stuff you try
+### Cool stuff using Tweetscrape
 I have added a few examples (Jupyter Notebooks) using this library to do some [cool stuff](tweetscrape/coolstuff).
 - Tweet generator using Markov Chain
 - Gensim Topic Modeling using Latent Dirichlet Allocation model
