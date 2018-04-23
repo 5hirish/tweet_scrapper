@@ -22,7 +22,7 @@ class TweetScrapperProfile(TweetScrapper):
     __twitter_profile_header__ = None
     __twitter_profile_params__ = None
 
-    def __init__(self, username, pages=2):
+    def __init__(self, username, pages=2, last_tweet_id=None):
 
         self.username = username
         if pages > 25:
@@ -45,8 +45,14 @@ class TweetScrapperProfile(TweetScrapper):
             'x-twitter-polling': 'true',
         }
 
-        super().__init__(twitter_request_url=self.__twitter_profile_url__,
-                         twitter_request_header=self.__twitter_profile_header__)
+        if last_tweet_id is not None:
+            self.__twitter_profile_params__ = {'max_position': last_tweet_id}
+            super().__init__(twitter_request_url=self.__twitter_profile_url__,
+                             twitter_request_header=self.__twitter_profile_header__,
+                             twitter_request_params=self.__twitter_profile_params__)
+        else:
+            super().__init__(twitter_request_url=self.__twitter_profile_url__,
+                             twitter_request_header=self.__twitter_profile_header__)
 
     def get_profile_tweets(self, save_output=False):
         output_file_name = '/'+self.username+'_profile'

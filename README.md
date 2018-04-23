@@ -61,22 +61,6 @@ Hastags:['#machinelearning']
 Mentions:['@Quora', '@nikhilbd', '@InfoQ']
 Replies:0	Favorites:15	Retweets:5
 
-Id:970542118350462976	Type:tweet	Time:1520230247000
-Author:GabbbarSingh	AuthorId:108391251
-Text:  Gary Oldman, playing Winston Churchill, wins the best actor for Darkest hour. Nothing wrong with awarding the craft of acting even though you play a murderer, but showing the cold blooded tyrant Churchill, in a positive light, deserves condemnation from Indians. #FuckChurchill
-Links:[]
-Hastags:['#FuckChurchill']
-Mentions:[]
-Replies:30	Favorites:581	Retweets:253
-
-Id:970008694783176704	Type:tweet	Time:1520103069000
-Author:maxmunnecke	AuthorId:201907594
-Text:  New Jupyter notebook on topic modelling with SpaCy, Gensim and Textacy. Combining 'Termite Plot' and 'pyLDAvis' visualizations makes sense when evaluating topic models. Try out the notebook: https://nbviewer.jupyter.org/github/repmax/topic-model/blob/master/topic-modelling.ipynb … #dataviz #nlp #digitalhumanities @gensim_py @stanfordnlp @uwdatapic.twitter.com/ngyGZopw7g
-Links:['https://t.co/0o0FEOAl20', 'https://t.co/ngyGZopw7g']
-Hastags:['#dataviz', '#nlp', '#digitalhumanities']
-Mentions:['@gensim_py', '@stanfordnlp', '@uwdata']
-Replies:0	Favorites:170	Retweets:61
-
 ....
 ```
 
@@ -91,6 +75,11 @@ Python Package dependencies listed in [requirements.txt](requirements.txt)
 * Extract user tweets with all meta-data
 * Extracts external links, hashtags and mentions from a tweet
 * Extracts reply, favorite and retweet counts of a tweet
+
+### Cool stuff using Tweetscrape
+I have added a few examples (Jupyter Notebooks) using this library to do some [cool stuff](tweetscrape/coolstuff).
+- Tweet generator using Markov Chain
+- Gensim Topic Modeling using Latent Dirichlet Allocation model
 
 ### TODO
 
