@@ -19,7 +19,9 @@ def setup_package():
     base_dir = os.path.abspath(os.path.dirname(__file__))
     setup_config = base_dir+'/setup.cfg'
     
-    setup()
+    setup(
+        setup_cfg=True
+    )
 
 
 if __name__ == "__main__":
