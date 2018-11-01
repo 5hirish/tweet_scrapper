@@ -56,12 +56,12 @@ class TweetScrapper:
             tweet_json = response.json()
 
             try:
-                if tweet_json['has_more_items']:
-                    num_new_tweets = tweet_json['new_latent_count']
+                if tweet_json.get('has_more_items'):
+                    num_new_tweets = tweet_json.get('new_latent_count')
                 else:
                     logger.info("No more items...!!!")
 
-                tweets_html = tweet_json['items_html']
+                tweets_html = tweet_json.get('items_html')
 
                 if log_output:
                     # save_output(output_file + '.json', str(tweet_json))
