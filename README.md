@@ -37,30 +37,35 @@ for tweet in tweets:
 ```
 Read more on `tweetscrape` usage [here](USAGE.md).
 ```
-Id:973027095411437568	Type:tweet	Time:1520822712000
-Author:Reza_Zadeh	AuthorId:92839676
-Text:  There's a lot of computational power that goes into mining bitcoin, in particular to find little bits of data with certain SHA256 hashes. Instead, would've been great if that compute power were used to solve challenging NP-hard problems. Human progress becomes side-effect of hype
-Links:[]
-Hastags:[]
-Mentions:[]
-Replies:12	Favorites:187	Retweets:51
+Id: 1056176020368191488	Type: tweet	Time: 1540646960000
+Author: 5hirish	AuthorId: 428808036
+ReTweeter: None
+Associated Tweet: 1056176020368191488
+Text:   I've completed 7 Pull Requests for #Hacktoberfest! https://hacktoberfest.digitalocean.com/stats/5hirish  Always wanted to contribute to #OpenSource, thanks to @digitalocean initiative #Hacktoberfest finally got around doing it. Will keep it up.
+Links: ['https://t.co/J42KiNKGMG']
+Hastags: ['#Hacktoberfest', '#OpenSource', '#Hacktoberfest']
+Mentions: ['@digitalocean']
+Replies: 0	Favorites: 3	Retweets: 1
 
-Id:972778151796510721	Type:tweet	Time:1520763359000
-Author:gensim_py	AuthorId:3110758625
-Text:   Calling all #Gensim users! Please help improve Gensim by giving us your feedback in this short survey.https://radimrehurek.com/gensim/survey.html …
-Links:['https://t.co/sJsDTXv6QF']
-Hastags:['#Gensim']
-Mentions:[]
-Replies:8	Favorites:57	Retweets:46
+Id: 1055883061513084928	Type: tweet	Time: 1540577113000
+Author: wesmckinn	AuthorId: 115494880
+ReTweeter: 5hirish
+Associated Tweet: 1055883061513084928
+Text:   TFW someone asks "Any update?" or "When is this feature going to be implemented?" on an open source issue tracker.
+Links: []
+Hastags: []
+Mentions: []
+Replies: 5	Favorites: 84	Retweets: 11
 
-Id:953706491881680896	Type:tweet	Time:1516216321000
-Author:QCon	AuthorId:14100646
-Text:  “ML for Question and Answer Understanding @Quora” #machinelearning @nikhilbd presentation is now live on @infoqhttp://bit.ly/2Da8WuX 
-Links:['https://t.co/buseQxF9mS']
-Hastags:['#machinelearning']
-Mentions:['@Quora', '@nikhilbd', '@InfoQ']
-Replies:0	Favorites:15	Retweets:5
-
+Id: 1055151881377406976	Type: tweet	Time: 1540402786000
+Author: justinkan	AuthorId: 28917111
+ReTweeter: 5hirish
+Associated Tweet: 1055151881377406976
+Text:   1/ Actually I’ve learned a lot from @ROWGHANI that’s worth sharing. First, your job as CEO is to: make sure there’s $ in the bank, define the company’s mission, hire the senior team, and do maybe one thing you enjoy (sales, product, etc)
+Links: []
+Hastags: []
+Mentions: ['@ROWGHANI']
+Replies: 43	Favorites: 2793	Retweets: 700
 ....
 ```
 

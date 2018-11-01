@@ -1,19 +1,26 @@
-from unittest import TestCase
-
+import pytest
 from tweetscrape.profile_tweets import TweetScrapperProfile
 
 
-class UserTweetsTest(TestCase):
-    
-    test_users = ["@BarackObama", "@fchollet", "@Kasparov63", "@ShashiTharoor", "@EdwardSnowden", "@colbertlateshow", "@HamillHimself"]
-    test_pages = 2
-    
-    def test_user_tweets(self):    
-        for user in self.test_users:
-            with self.subTest(i=user):
-                ts = TweetScrapperProfile(user, self.test_pages)
-                extracted_tweets = ts.get_profile_tweets(False)
-                assert len(extracted_tweets) > 0
-                for tweets in extracted_tweets:
-                    assert tweets.get_tweet_id() is not None
-                    assert tweets.get_tweet_text() is not None
+@pytest.mark.parametrize("test_user,test_page", [
+        ("@BarackObama", 2),
+        ("@fchollet", 6),
+        ("@Kasparov63", 0),
+        ("@ShashiTharoor", 10),
+        ("@EdwardSnowden", 15),
+        ("@colbertlateshow", 5),
+        ("@HamillHimself", 4)
+
+    ])
+def test_user_tweets(test_user, test_page):
+    ts = TweetScrapperProfile(test_user, test_page)
+    extracted_tweets = ts.get_profile_tweets(False)
+    if test_page > 0:
+        assert len(extracted_tweets) > 0
+    for tweets in extracted_tweets:
+        assert tweets.get_tweet_id() is not None
+        assert tweets.get_tweet_text() is not None
+        if not tweets.get_is_retweeter():
+            assert tweets.get_tweet_author() == test_user[1:]
+        else:
+            assert tweets.get_retweeter() == test_user[1:]

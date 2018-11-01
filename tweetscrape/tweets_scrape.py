@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 
 class TweetScrapper:
 
-    tweets_data_list = []
     __twitter_request_url__ = None
     __twitter_request_header__ = None
     __twitter_request_params__ = None
@@ -34,6 +33,7 @@ class TweetScrapper:
     _tweet_hastag_pattern_ = r'''/hashtag/([0-9a-zA-Z_]*)\?src=hash'''
 
     def __init__(self, twitter_request_url, twitter_request_header, twitter_request_params=None):
+        self.tweets_data_list = []
         self.__twitter_request_url__ = twitter_request_url
         self.__twitter_request_header__ = twitter_request_header
         self.__twitter_profile_params__ = twitter_request_params
@@ -100,21 +100,30 @@ class TweetScrapper:
     def extract_tweets_data(self, tweet_list, hastag_capture):
         if tweet_list is not None:
             for tweet in tweet_list:
-                if 'data-item-type' in tweet.attrib and tweet.attrib['data-item-type'] == "tweet":
-                    item_id = tweet.attrib['data-item-id']
-                    item_type = tweet.attrib['data-item-type']
+                if 'data-item-type' in tweet.attrib and tweet.attrib.get('data-item-type') == "tweet":
+                    item_id = tweet.attrib.get('data-item-id')
+                    item_type = tweet.attrib.get('data-item-type')
                     tweet_data = TweetInfo(item_id, item_type)
 
                     if len(tweet.getchildren()) > 0:
                         tweet_meta = tweet.getchildren()[0]
-                        tweet_id = tweet_meta.attrib['data-tweet-id']
-                        tweet_author = tweet_meta.attrib['data-screen-name']
-                        tweet_author_id = tweet_meta.attrib['data-user-id']
-                        tweet_data.set_tweet_author(tweet_author, tweet_author_id)
+                        tweet_id = tweet_meta.attrib.get('data-tweet-id')
+                        tweet_author = tweet_meta.attrib.get('data-screen-name')
+                        tweet_author_name = tweet_meta.attrib.get('data-name')
+                        tweet_author_id = tweet_meta.attrib.get('data-user-id')
+                        if "data-conversation-id" in tweet_meta.attrib:
+                            tweet_has_parent = tweet_meta.attrib.get('data-has-parent-tweet', False)
+                            tweet_conversation_id = tweet_meta.attrib.get('data-conversation-id', None)
+                            tweet_data.set_tweet_conversation(tweet_conversation_id, tweet_has_parent)
+                        if "data-retweet-id" in tweet_meta.attrib:
+                            tweet_retweeter = tweet_meta.attrib.get('data-retweeter')
+                            tweet_data.set_retweeter(tweet_retweeter)
+                        tweet_data.set_tweet_author(tweet_author, tweet_author_name, tweet_author_id)
 
                         tweet_content = tweet_meta.xpath(self._tweet_content_pattern_)
                         if len(tweet_content) > 0:
-                            tweet_time_ms = tweet_content[0].xpath(self._tweet_time_ms_pattern_)[0].attrib['data-time-ms']
+                            tweet_time_ms = tweet_content[0].xpath(self._tweet_time_ms_pattern_)[0]\
+                                .attrib.get('data-time-ms')
                             tweet_data.set_tweet_time_ms(tweet_time_ms)
 
                             tweet_text = tweet_content[0].xpath(self._tweet_text_pattern_)
@@ -124,7 +133,7 @@ class TweetScrapper:
                             tweet_links_raw = tweet_content[0].xpath(self._tweet_links_list_pattern_)
 
                             for raw_link in tweet_links_raw:
-                                raw_url = raw_link.attrib['href']
+                                raw_url = raw_link.attrib.get('href')
                                 if raw_url.startswith('https://'):
                                     tweet_data.set_tweet_links(raw_url)
                                 elif raw_url.startswith('/hashtag/'):
@@ -137,11 +146,11 @@ class TweetScrapper:
                                     tweet_data.set_tweet_mentions(mention)
 
                             tweet_replies = tweet_content[0].xpath(self._tweet_reply_count_pattern_)
-                            tweet_replies_count = tweet_replies[0].attrib['data-tweet-stat-count']
+                            tweet_replies_count = tweet_replies[0].attrib.get('data-tweet-stat-count')
                             tweet_likes = tweet_content[0].xpath(self._tweet_like_count_pattern_)
-                            tweet_likes_count = tweet_likes[0].attrib['data-tweet-stat-count']
+                            tweet_likes_count = tweet_likes[0].attrib.get('data-tweet-stat-count')
                             tweet_retweets = tweet_content[0].xpath(self._tweet_retweet_count_pattern_)
-                            tweet_retweets_count = tweet_retweets[0].attrib['data-tweet-stat-count']
+                            tweet_retweets_count = tweet_retweets[0].attrib.get('data-tweet-stat-count')
 
                             tweet_data.set_tweet_interactions(tweet_replies_count, tweet_likes_count, tweet_retweets_count)
 

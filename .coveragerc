@@ -1,8 +1,9 @@
 # .coveragerc to control coverage.py
 [run]
 branch = True
-source = */tweetscrape/*
-omit = /tweetscrape/coolstuff/*
+source = tweetscrape/*
+omit =
+    tweetscrape/coolstuff/*
 
 [report]
 # Regexes for lines to exclude from consideration
