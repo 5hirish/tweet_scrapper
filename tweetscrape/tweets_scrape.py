@@ -3,6 +3,7 @@ import os
 import requests
 import logging
 from lxml import etree
+from urllib import parse
 
 from tweetscrape.model.tweet_model import TweetInfo
 
@@ -36,7 +37,7 @@ class TweetScrapper:
         self.tweets_data_list = []
         self.__twitter_request_url__ = twitter_request_url
         self.__twitter_request_header__ = twitter_request_header
-        self.__twitter_profile_params__ = twitter_request_params
+        self.__twitter_request_params__ = twitter_request_params
 
     def execute_twitter_request(self, username=None, search_term=None, pages=2, log_output=False, output_file=None):
         hastag_capture = re.compile(self._tweet_hastag_pattern_)
@@ -44,12 +45,11 @@ class TweetScrapper:
 
         while pages > 0:
 
-            if self.__twitter_profile_params__ is not None:
-                response = requests.get(self.__twitter_request_url__,
-                                        headers=self.__twitter_request_header__,
-                                        params=self.__twitter_profile_params__)
-            else:
-                response = requests.get(self.__twitter_request_url__, headers=self.__twitter_request_header__)
+            twitter_request_params_encoded = parse.urlencode(self.__twitter_request_params__, quote_via=parse.quote)
+
+            response = requests.get(self.__twitter_request_url__,
+                                    headers=self.__twitter_request_header__,
+                                    params=twitter_request_params_encoded)
 
             logger.debug("Page {0} request: {1}".format(pages, response.status_code))
 
@@ -89,7 +89,8 @@ class TweetScrapper:
             pages += -1
             if len(self.tweets_data_list) > 0:
                 last_tweet_id = self.tweets_data_list[len(self.tweets_data_list) - 1].get_tweet_id()
-                self.__twitter_profile_params__ = {'max_position': last_tweet_id}                       # min_position
+                # self.__twitter_request_params__ = self.__twitter_request_params__['min_position'] = last_tweet_id
+                self.__twitter_request_params__['max_position']: last_tweet_id
             else:
                 logger.info("End of tweet stream...")
                 return self.tweets_data_list

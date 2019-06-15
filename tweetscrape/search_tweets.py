@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime
-from urllib import parse
 
 from tweetscrape.tweets_scrape import TweetScrapper
 
@@ -44,6 +43,7 @@ class TweetScrapperSearch(TweetScrapper):
                  pages=2, language=''):
 
         self.search_type = "typd"
+        self.pages = pages
 
         constructed_search_query = self.construct_query(search_all, search_exact, search_any,
                                                         search_excludes, search_hashtags,
@@ -51,7 +51,8 @@ class TweetScrapperSearch(TweetScrapper):
                                                         search_near_place, search_near_distance,
                                                         search_from_date, search_till_date)
 
-        self.search_term = parse.quote(constructed_search_query)
+        self.search_term = constructed_search_query
+        # self.search_term = parse.quote(constructed_search_query)
 
         # if search_all.startswith("#"):
         #     self.search_type = "hash"
@@ -100,27 +101,39 @@ class TweetScrapperSearch(TweetScrapper):
                         search_from_accounts, search_to_accounts, search_mentions, search_near_place,
                         search_near_distance, search_from_date, search_till_date):
 
+        search_query_filters = []
+
+        if search_all is not None and search_all != "":
+            search_query_filters.append(search_all)
+
         if search_exact is not None and search_exact != "":
             search_exact = "\"" + search_exact + "\""
+            search_query_filters.append(search_exact)
 
         if search_any is not None and search_any != "" and " " in search_any:
             search_any = " OR ".join(search_any.split())
+            search_query_filters.append(search_any)
 
         if search_excludes is not None and search_excludes != "":
             search_excludes = " -".join(search_excludes.split())
             search_excludes = " -" + search_excludes
+            search_query_filters.append(search_excludes)
 
         if search_hashtags is not None and search_hashtags != "":
             search_hashtags = prefix_operator(search_hashtags, "#")
+            search_query_filters.append(search_hashtags)
 
         if search_from_accounts is not None and search_from_accounts != "":
             search_from_accounts = prefix_operator(search_from_accounts, "from:")
+            search_query_filters.append(search_from_accounts)
 
         if search_to_accounts is not None and search_to_accounts != "":
             search_to_accounts = prefix_operator(search_to_accounts, "to:")
+            search_query_filters.append(search_to_accounts)
 
         if search_mentions is not None and search_mentions != "":
             search_mentions = prefix_operator(search_mentions, "@")
+            search_query_filters.append(search_mentions)
 
         if search_near_place is not None and search_near_place != "":
             search_near_place = "near:" + search_near_place
@@ -130,6 +143,9 @@ class TweetScrapperSearch(TweetScrapper):
             else:
                 search_near_distance = "within:15mi"
 
+            search_query_filters.append(search_near_place)
+            search_query_filters.append(search_near_distance)
+
         if search_from_date is not None and search_from_date != "" and valid_date_format(search_from_date):
             search_from_date = "since:" + search_from_date
 
@@ -138,14 +154,12 @@ class TweetScrapperSearch(TweetScrapper):
             else:
                 search_till_date = datetime.strftime(datetime.now(), "%Y-%m-%d")
 
-        search_query_filters = [
-            search_all, search_exact, search_any, search_excludes, search_hashtags,
-            search_from_accounts, search_to_accounts, search_mentions,
-            search_near_place, search_near_distance,
-            search_from_date, search_till_date
-        ]
+            search_query_filters.append(search_from_date)
+            search_query_filters.append(search_till_date)
 
         search_query = ' '.join(search_query_filters)
+
+        logger.info("Search:|{0}|".format(search_query))
 
         return search_query
 
@@ -169,10 +183,31 @@ def valid_date_format(date_str, date_format='%Y-%m-%d'):
 
 
 if __name__ == '__main__':
+
+    # avengers%20infinity%20war%20%22avengers%22%20-asia%20%23avengers%20from%3Amarvel%20since%3A2019-06-01
+    # avengers infinity war "avengers" -asia #avengers from:marvel since:2019-06-01
+
     logging.basicConfig(level=logging.DEBUG)
 
-    # ts = TweetScrapperSearch("avengers infinity war", "typd")
-    ts = TweetScrapperSearch("#FakeNews", 3)
+    ts = TweetScrapperSearch(search_all="avengers infinity war")
+    # ts = TweetScrapperSearch(search_hashtags="FakeNews Trump", pages=1)
+    #
+    # # avengers endgame spiderman OR ironman -spoilers
+    # ts = TweetScrapperSearch(search_all="avengers endgame",
+    #                          search_any="spiderman ironman",
+    #                          search_excludes="spoilers", pages=2)
+    #
+    # ts = TweetScrapperSearch(search_all="avengers marvel",
+    #                          search_hashtags="avengers",
+    #                          search_from_accounts="marvel ",
+    #                          pages=2)
+    #
+    # ts = TweetScrapperSearch(search_all="raptors",
+    #                          search_from_date="2019-03-01", search_till_date="2019-06-01",
+    #                          pages=1)
+    #
+    # ts = TweetScrapperSearch(search_hashtags="raptors", search_near_place="toronto", pages=1)
+
     l_extracted_tweets = ts.get_search_tweets(True)
     for l_tweet in l_extracted_tweets:
         print(str(l_tweet))
