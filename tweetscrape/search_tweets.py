@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from urllib import parse
 
 from tweetscrape.tweets_scrape import TweetScrapper
@@ -7,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 
 class TweetScrapperSearch(TweetScrapper):
-
     """
     Search syntax for query, each filter is white space separated
     eg: Election India NDA "BJP" 2019 OR 2018 -Asia #India OR #BJP from:narendramodi to:NITIAayog @NDTV since:2017-08-01 until:2019-06-15
@@ -16,13 +16,16 @@ class TweetScrapperSearch(TweetScrapper):
     2) This exact phrase: `""` term in quotation marks
     3) Any of these words: `OR` operator separated, each operator separated
     4) None of these words: `-` operator as prefix to the term, each white space separated
-    5) These hastags: `#` operator as prefix to the term, each `OR` separated
+    5) These hash-tags: `#` operator as prefix to the term, each `OR` separated
     6) From these accounts: `from:` as prefix to the term, each `OR` separated
     7) To these accounts: `to:` as prefix to the term, each `OR` separated
     8) Mentioning these accounts: `@` as prefix to the term, each `OR` separated
     9) Near this place: `near:` as prefix to the term and `""` term in quotation marks
                         and `within:` as range with `mi` as suffix miles
     10) From this date: `since:` as prefix to from date and `until:` as prefix to till date. Date format as `YYYY-MM-DD`
+
+    Can specify language. Use language codes. eg. English - `en`
+
     """
 
     search_term = None
@@ -33,13 +36,27 @@ class TweetScrapperSearch(TweetScrapper):
     __twitter_search_header__ = None
     __twitter_search_params__ = None
 
-    def __init__(self, search_term, pages=2, language=''):
-        self.search_term = parse.quote(search_term)
+    def __init__(self,
+                 search_all="", search_exact="", search_any="", search_excludes="", search_hashtags="",
+                 search_from_accounts="", search_to_accounts="", search_mentions="",
+                 search_near_place="", search_near_distance="",
+                 search_from_date="", search_till_date="",
+                 pages=2, language=''):
 
-        if search_term.startswith("#"):
-            self.search_type = "hash"
-        else:
-            self.search_type = "typd"
+        self.search_type = "typd"
+
+        constructed_search_query = self.construct_query(search_all, search_exact, search_any,
+                                                        search_excludes, search_hashtags,
+                                                        search_from_accounts, search_to_accounts, search_mentions,
+                                                        search_near_place, search_near_distance,
+                                                        search_from_date, search_till_date)
+
+        self.search_term = parse.quote(constructed_search_query)
+
+        # if search_all.startswith("#"):
+        #     self.search_type = "hash"
+        # else:
+        #     self.search_type = "typd"
 
         # if pages > 25:
         #     self.pages = 25
@@ -77,6 +94,78 @@ class TweetScrapperSearch(TweetScrapper):
         output_file_name = '/' + self.search_term + '_search'
         return self.execute_twitter_request(search_term=self.search_term, pages=self.pages,
                                             log_output=save_output, output_file=output_file_name)
+
+    @staticmethod
+    def construct_query(search_all, search_exact, search_any, search_excludes, search_hashtags,
+                        search_from_accounts, search_to_accounts, search_mentions, search_near_place,
+                        search_near_distance, search_from_date, search_till_date):
+
+        if search_exact is not None and search_exact != "":
+            search_exact = "\"" + search_exact + "\""
+
+        if search_any is not None and search_any != "" and " " in search_any:
+            search_any = " OR ".join(search_any.split())
+
+        if search_excludes is not None and search_excludes != "":
+            search_excludes = " -".join(search_excludes.split())
+            search_excludes = " -" + search_excludes
+
+        if search_hashtags is not None and search_hashtags != "":
+            search_hashtags = prefix_operator(search_hashtags, "#")
+
+        if search_from_accounts is not None and search_from_accounts != "":
+            search_from_accounts = prefix_operator(search_from_accounts, "from:")
+
+        if search_to_accounts is not None and search_to_accounts != "":
+            search_to_accounts = prefix_operator(search_to_accounts, "to:")
+
+        if search_mentions is not None and search_mentions != "":
+            search_mentions = prefix_operator(search_mentions, "@")
+
+        if search_near_place is not None and search_near_place != "":
+            search_near_place = "near:" + search_near_place
+
+            if search_near_distance is not None and search_near_distance != "":
+                search_near_distance = "within:" + search_near_distance
+            else:
+                search_near_distance = "within:15mi"
+
+        if search_from_date is not None and search_from_date != "" and valid_date_format(search_from_date):
+            search_from_date = "since:" + search_from_date
+
+            if search_till_date is not None and search_till_date != "" and valid_date_format(search_from_date):
+                search_till_date = "untill:" + search_till_date
+            else:
+                search_till_date = datetime.strftime(datetime.now(), "%Y-%m-%d")
+
+        search_query_filters = [
+            search_all, search_exact, search_any, search_excludes, search_hashtags,
+            search_from_accounts, search_to_accounts, search_mentions,
+            search_near_place, search_near_distance,
+            search_from_date, search_till_date
+        ]
+
+        search_query = ' '.join(search_query_filters)
+
+        return search_query
+
+
+def prefix_operator(query_str, prefix_op):
+    query_list = query_str.split()
+    for i, tag in enumerate(query_list):
+        if tag[0] != prefix_op:
+            query_list[i] = prefix_op + tag
+
+    return " OR ".join(query_list.split())
+
+
+def valid_date_format(date_str, date_format='%Y-%m-%d'):
+    try:
+        datetime.strptime(date_str, date_format)
+    except ValueError:
+        logger.warning("Incorrect data format, should be YYYY-MM-DD")
+        return False
+    return True
 
 
 if __name__ == '__main__':

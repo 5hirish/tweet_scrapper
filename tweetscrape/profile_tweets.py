@@ -25,10 +25,10 @@ class TweetScrapperProfile(TweetScrapper):
     def __init__(self, username, pages=2, last_tweet_id=None):
 
         self.username = username
-        if pages > 25:
-            self.pages = 25
-        else:
-            self.pages = pages
+        # if pages > 25:
+        #     self.pages = 25
+        # else:
+        #     self.pages = pages
 
         self.__twitter_profile_url__ = 'https://twitter.com/i/profiles/show/{username}/timeline/tweets'\
             .format(username=self.username)
