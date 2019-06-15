@@ -8,6 +8,23 @@ logger = logging.getLogger(__name__)
 
 class TweetScrapperSearch(TweetScrapper):
 
+    """
+    Search syntax for query, each filter is white space separated
+    eg: Election India NDA "BJP" 2019 OR 2018 -Asia #India OR #BJP from:narendramodi to:NITIAayog @NDTV since:2017-08-01 until:2019-06-15
+
+    1) All of these words: each white space separated
+    2) This exact phrase: `""` term in quotation marks
+    3) Any of these words: `OR` operator separated, each operator separated
+    4) None of these words: `-` operator as prefix to the term, each white space separated
+    5) These hastags: `#` operator as prefix to the term, each `OR` separated
+    6) From these accounts: `from:` as prefix to the term, each `OR` separated
+    7) To these accounts: `to:` as prefix to the term, each `OR` separated
+    8) Mentioning these accounts: `@` as prefix to the term, each `OR` separated
+    9) Near this place: `near:` as prefix to the term and `""` term in quotation marks
+                        and `within:` as range with `mi` as suffix miles
+    10) From this date: `since:` as prefix to from date and `until:` as prefix to till date. Date format as `YYYY-MM-DD`
+    """
+
     search_term = None
     search_type = None
     pages = None
@@ -16,7 +33,7 @@ class TweetScrapperSearch(TweetScrapper):
     __twitter_search_header__ = None
     __twitter_search_params__ = None
 
-    def __init__(self, search_term, pages=2):
+    def __init__(self, search_term, pages=2, language=''):
         self.search_term = parse.quote(search_term)
 
         if search_term.startswith("#"):
@@ -24,10 +41,10 @@ class TweetScrapperSearch(TweetScrapper):
         else:
             self.search_type = "typd"
 
-        if pages > 25:
-            self.pages = 25
-        else:
-            self.pages = pages
+        # if pages > 25:
+        #     self.pages = 25
+        # else:
+        #     self.pages = pages
 
         self.__twitter_search_url__ = 'https://twitter.com/i/search/timeline'
 
@@ -35,6 +52,7 @@ class TweetScrapperSearch(TweetScrapper):
             'vertical': 'default',
             'src': self.search_type,
             'q': self.search_term,
+            'l': language,
             'include_available_features': 1,
             'include_entities': 1,
             'include_new_items_bar': 'true'
@@ -69,3 +87,4 @@ if __name__ == '__main__':
     l_extracted_tweets = ts.get_search_tweets(True)
     for l_tweet in l_extracted_tweets:
         print(str(l_tweet))
+    print(len(l_extracted_tweets))

@@ -152,7 +152,8 @@ class TweetScrapper:
                             tweet_retweets = tweet_content[0].xpath(self._tweet_retweet_count_pattern_)
                             tweet_retweets_count = tweet_retweets[0].attrib.get('data-tweet-stat-count')
 
-                            tweet_data.set_tweet_interactions(tweet_replies_count, tweet_likes_count, tweet_retweets_count)
+                            tweet_data.set_tweet_interactions(tweet_replies_count, tweet_likes_count,
+                                                              tweet_retweets_count)
 
                             self.tweets_data_list.append(tweet_data)
 
