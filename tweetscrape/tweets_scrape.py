@@ -89,7 +89,7 @@ class TweetScrapper:
             pages += -1
             if len(self.tweets_data_list) > 0:
                 last_tweet_id = self.tweets_data_list[len(self.tweets_data_list) - 1].get_tweet_id()
-                self.__twitter_profile_params__ = {'max_position': last_tweet_id}
+                self.__twitter_profile_params__ = {'max_position': last_tweet_id}                       # min_position
             else:
                 logger.info("End of tweet stream...")
                 return self.tweets_data_list

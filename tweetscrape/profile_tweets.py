@@ -1,6 +1,7 @@
 import logging
 
 from tweetscrape.tweets_scrape import TweetScrapper
+
 """
 Parsing with XPath 1.0 query
 XPath Documentation : https://developer.mozilla.org/en-US/docs/Web/XPath
@@ -14,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 class TweetScrapperProfile(TweetScrapper):
-
     username = "5hirish"
     pages = 0
 
@@ -30,9 +30,14 @@ class TweetScrapperProfile(TweetScrapper):
         else:
             self.pages = pages
 
-        self.__twitter_profile_url__ = 'https://twitter.com/i/profiles/show/{username}/timeline/tweets' \
-                                  '?include_available_features=1&include_entities=1&include_new_items_bar=true' \
+        self.__twitter_profile_url__ = 'https://twitter.com/i/profiles/show/{username}/timeline/tweets'\
             .format(username=self.username)
+
+        self.__twitter_profile_params__ = {
+            'include_available_features': 1,
+            'include_entities': 1,
+            'include_new_items_bar': True
+        }
 
         self.__twitter_profile_header__ = {
             'accept': 'application/json, text/javascript, */*; q=0.01',
@@ -46,24 +51,23 @@ class TweetScrapperProfile(TweetScrapper):
         }
 
         if last_tweet_id is not None:
-            self.__twitter_profile_params__ = {'max_position': last_tweet_id}
-            super().__init__(twitter_request_url=self.__twitter_profile_url__,
-                             twitter_request_header=self.__twitter_profile_header__,
-                             twitter_request_params=self.__twitter_profile_params__)
-        else:
-            super().__init__(twitter_request_url=self.__twitter_profile_url__,
-                             twitter_request_header=self.__twitter_profile_header__)
+            # self.__twitter_profile_params__ = self.__twitter_profile_params__['min_position'] = last_tweet_id
+            self.__twitter_profile_params__ = self.__twitter_profile_params__['max_position'] = last_tweet_id
+
+        super().__init__(twitter_request_url=self.__twitter_profile_url__,
+                         twitter_request_header=self.__twitter_profile_header__,
+                         twitter_request_params=self.__twitter_profile_params__)
 
     def get_profile_tweets(self, save_output=False):
-        output_file_name = '/'+self.username+'_profile'
+        output_file_name = '/' + self.username + '_profile'
         return self.execute_twitter_request(username=self.username, pages=self.pages,
-                                     log_output=save_output, output_file=output_file_name)
+                                            log_output=save_output, output_file=output_file_name)
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    ts = TweetScrapperProfile("BarackObama", 2)
+    ts = TweetScrapperProfile("BarackObama", 3)
     l_extracted_tweets = ts.get_profile_tweets(True)
     for l_tweet in l_extracted_tweets:
         print(str(l_tweet))
-
+    print(len(l_extracted_tweets))

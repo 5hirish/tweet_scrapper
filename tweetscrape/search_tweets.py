@@ -29,10 +29,16 @@ class TweetScrapperSearch(TweetScrapper):
         else:
             self.pages = pages
 
-        self.__twitter_search_url__ = 'https://twitter.com/i/search/timeline' \
-                                 '?vertical=default&q={search_term}&src={search_type}' \
-                                 '&include_available_features=1&include_entities=1' \
-            .format(search_term=self.search_term, search_type=self.search_type)
+        self.__twitter_search_url__ = 'https://twitter.com/i/search/timeline'
+
+        self.__twitter_search_params__ = {
+            'vertical': 'default',
+            'src': self.search_type,
+            'q': self.search_term,
+            'include_available_features': 1,
+            'include_entities': 1,
+            'include_new_items_bar': 'true'
+        }
 
         self.__twitter_search_header__ = {
             'accept': 'application/json, text/javascript, */*; q=0.01',
@@ -46,7 +52,8 @@ class TweetScrapperSearch(TweetScrapper):
         }
 
         super().__init__(twitter_request_url=self.__twitter_search_url__,
-                         twitter_request_header=self.__twitter_search_header__)
+                         twitter_request_header=self.__twitter_search_header__,
+                         twitter_request_params=self.__twitter_search_params__)
 
     def get_search_tweets(self, save_output=False):
         output_file_name = '/' + self.search_term + '_search'
