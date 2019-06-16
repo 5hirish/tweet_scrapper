@@ -22,7 +22,7 @@ class TweetScrapperProfile(TweetScrapper):
     __twitter_profile_header__ = None
     __twitter_profile_params__ = None
 
-    def __init__(self, username, pages=2):
+    def __init__(self, username, pages=2, *args):
 
         self.username = username
         self.pages = pages
@@ -51,9 +51,9 @@ class TweetScrapperProfile(TweetScrapper):
             'x-twitter-polling': 'true',
         }
 
-        super().__init__(twitter_request_url=self.__twitter_profile_url__,
-                         twitter_request_header=self.__twitter_profile_header__,
-                         twitter_request_params=self.__twitter_profile_params__)
+        super().__init__(self.__twitter_profile_url__,
+                         self.__twitter_profile_header__,
+                         self.__twitter_profile_params__, *args)
 
     def get_profile_tweets(self, save_output=False):
         output_file_name = '/' + self.username + '_profile'
@@ -63,8 +63,8 @@ class TweetScrapperProfile(TweetScrapper):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    ts = TweetScrapperProfile("BarackObama", 3)
-    l_extracted_tweets = ts.get_profile_tweets(True)
-    for l_tweet in l_extracted_tweets:
-        print(str(l_tweet))
-    print(len(l_extracted_tweets))
+    ts = TweetScrapperProfile("BarackObama", 3, 'twitter.json', 'json')
+    l_tweet_count, l_dump_path = ts.get_profile_tweets(True)
+    # for l_tweet in l_extracted_tweets:
+    #     print(str(l_tweet))
+    print(l_tweet_count)

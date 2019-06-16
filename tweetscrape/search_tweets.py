@@ -40,7 +40,8 @@ class TweetScrapperSearch(TweetScrapper):
                  search_from_accounts="", search_to_accounts="", search_mentions="",
                  search_near_place="", search_near_distance="",
                  search_from_date="", search_till_date="",
-                 pages=2, language=''):
+                 pages=2, language='',
+                 tweet_dump_path="", tweet_dump_format=""):
 
         self.search_type = "typd"
         self.pages = pages
@@ -87,9 +88,10 @@ class TweetScrapperSearch(TweetScrapper):
             'x-twitter-active-user': 'yes'
         }
 
-        super().__init__(twitter_request_url=self.__twitter_search_url__,
-                         twitter_request_header=self.__twitter_search_header__,
-                         twitter_request_params=self.__twitter_search_params__)
+        super().__init__(self.__twitter_search_url__,
+                         self.__twitter_search_header__,
+                         self.__twitter_search_params__,
+                         tweet_dump_path, tweet_dump_format)
 
     def get_search_tweets(self, save_output=False):
         output_file_name = '/' + self.search_term + '_search'
@@ -189,7 +191,7 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.DEBUG)
 
-    ts = TweetScrapperSearch(search_all="avengers infinity war")
+    ts = TweetScrapperSearch(search_all="avengers infinity war", tweet_dump_path='twitter.json', tweet_dump_format='json')
     # ts = TweetScrapperSearch(search_hashtags="FakeNews Trump", pages=1)
     #
     # # avengers endgame spiderman OR ironman -spoilers
@@ -207,8 +209,7 @@ if __name__ == '__main__':
     #                          pages=1)
     #
     # ts = TweetScrapperSearch(search_hashtags="raptors", search_near_place="toronto", pages=1)
-
-    l_extracted_tweets = ts.get_search_tweets(True)
-    for l_tweet in l_extracted_tweets:
-        print(str(l_tweet))
-    print(len(l_extracted_tweets))
+    l_tweet_count, l_dump_path = ts.get_search_tweets(True)
+    # for l_tweet in l_extracted_tweets:
+    #     print(str(l_tweet))
+    print(l_tweet_count)

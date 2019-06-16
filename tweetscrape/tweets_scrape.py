@@ -2,6 +2,8 @@ import re
 import os
 import requests
 import logging
+import csv
+import json
 from lxml import etree
 from urllib import parse
 
@@ -33,17 +35,23 @@ class TweetScrapper:
 
     _tweet_hastag_pattern_ = r'''/hashtag/([0-9a-zA-Z_]*)\?src=hash'''
 
-    def __init__(self, twitter_request_url, twitter_request_header, twitter_request_params=None):
-        self.tweets_data_list = []
+    def __init__(self, twitter_request_url, twitter_request_header, twitter_request_params=None,
+                 twitter_file_path=None, twitter_file_format='json'):
+
         self.__twitter_request_url__ = twitter_request_url
         self.__twitter_request_header__ = twitter_request_header
         self.__twitter_request_params__ = twitter_request_params
+        self.__twitter_tweet_persist_file_path__ = twitter_file_path
+        self.__twitter_tweet_persist_file_format__ = twitter_file_format
 
     def execute_twitter_request(self, username=None, search_term=None, pages=2, log_output=False, output_file=None):
         hastag_capture = re.compile(self._tweet_hastag_pattern_)
         total_pages = pages
+        tweet_count = 0
+        last_tweet_id = ''
 
         while pages > 0:
+            current_tweet_count = 0
 
             twitter_request_params_encoded = parse.urlencode(self.__twitter_request_params__, quote_via=parse.quote)
 
@@ -73,7 +81,9 @@ class TweetScrapper:
                 if html_tree is not None:
                     tweet_list = html_tree.xpath(self._tweets_pattern_)
 
-                    self.extract_tweets_data(tweet_list, hastag_capture)
+                    tweets_generator = self.extract_tweets_data(tweet_list, hastag_capture)
+                    last_tweet_id, current_tweet_count = self.persist_tweets(tweets_generator)
+                    tweet_count += current_tweet_count
 
                     logger.debug(
                         "Extracting {0} tweets of {1} page...".format(len(tweet_list), total_pages - pages + 1))
@@ -87,16 +97,15 @@ class TweetScrapper:
                     raise ValueError("Received no arguments")
 
             pages += -1
-            if len(self.tweets_data_list) > 0:
-                last_tweet_id = self.tweets_data_list[len(self.tweets_data_list) - 1].get_tweet_id()
-                # self.__twitter_request_params__ = self.__twitter_request_params__['min_position'] = last_tweet_id
-                self.__twitter_request_params__['max_position']: last_tweet_id
+            if current_tweet_count > 0:
+                # self.__twitter_request_params__['min_position'] = last_tweet_id
+                self.__twitter_request_params__['max_position'] = last_tweet_id
             else:
                 logger.info("End of tweet stream...")
-                return self.tweets_data_list
+                return tweet_count, self.__twitter_tweet_persist_file_path__
 
-        logger.info("Total {0} tweets extracted.".format(len(self.tweets_data_list)))
-        return self.tweets_data_list
+        logger.info("Total {0} tweets extracted.".format(tweet_count))
+        return tweet_count, self.__twitter_tweet_persist_file_path__
 
     def extract_tweets_data(self, tweet_list, hastag_capture):
         if tweet_list is not None:
@@ -129,6 +138,7 @@ class TweetScrapper:
 
                             tweet_text = tweet_content[0].xpath(self._tweet_text_pattern_)
                             tweet_text = ''.join(tweet_text).replace('\n', '')
+                            tweet_text = tweet_text.strip()
                             tweet_data.set_tweet_text(tweet_text)
 
                             tweet_links_raw = tweet_content[0].xpath(self._tweet_links_list_pattern_)
@@ -156,7 +166,42 @@ class TweetScrapper:
                             tweet_data.set_tweet_interactions(tweet_replies_count, tweet_likes_count,
                                                               tweet_retweets_count)
 
-                            self.tweets_data_list.append(tweet_data)
+                            yield tweet_data
+
+    def persist_tweets(self, tweets_generator, dump_mode='a'):
+        if self.__twitter_tweet_persist_file_path__ is None or self.__twitter_tweet_persist_file_path__ == "":
+            self.__twitter_tweet_persist_file_format__ = 'json'
+            self.__twitter_tweet_persist_file_path__ = os.getcwd() + 'tweets_dump.' + \
+                                                       self.__twitter_tweet_persist_file_format__
+
+        with open(self.__twitter_tweet_persist_file_path__, dump_mode) as tweet_fp:
+            tweet_count = 0
+            last_tweet_id = ''
+
+            tweet_csv_writer = csv.DictWriter(tweet_fp, fieldnames=TweetInfo.tweet_fields)
+
+            if self.__twitter_tweet_persist_file_format__ != 'csv' and tweet_fp.tell() != 0:
+                tweet_fp.seek(tweet_fp.tell() - 1, os.SEEK_SET)
+                tweet_fp.truncate()
+                tweet_fp.write(",")
+
+            for tweet in tweets_generator:
+                last_tweet_id = tweet.get_tweet_id()
+                tweet_count += 1
+                if self.__twitter_tweet_persist_file_format__ == 'csv':
+                    if tweet_fp.tell() == 0:
+                        tweet_csv_writer.writeheader()
+                    tweet_csv_writer.writerow(tweet.get_json())
+                else:
+                    if tweet_fp.tell() == 0:
+                        tweet_fp.write("[")
+                    json.dump(tweet.get_json(), tweet_fp)
+                    tweet_fp.write(",")
+            if self.__twitter_tweet_persist_file_format__ != 'csv':
+                tweet_fp.seek(tweet_fp.tell() - 1, os.SEEK_SET)
+                tweet_fp.truncate()
+                tweet_fp.write("]")
+            return last_tweet_id, tweet_count
 
 
 def save_output(filename, data):
