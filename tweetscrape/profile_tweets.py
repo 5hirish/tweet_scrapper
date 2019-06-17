@@ -63,7 +63,7 @@ class TweetScrapperProfile(TweetScrapper):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    ts = TweetScrapperProfile("BarackObama", 3, 'twitter.json', 'json')
+    ts = TweetScrapperProfile("BarackObama", -1, 'twitter.csv', 'csv')
     l_tweet_count, l_dump_path = ts.get_profile_tweets(True)
     # for l_tweet in l_extracted_tweets:
     #     print(str(l_tweet))

@@ -112,24 +112,6 @@ class TweetInfo:
     def get_tweet_retweet_count(self):
         return self.__tweet_retweet_count__
 
-    def get_csv(self):
-        return ','.join([
-            self.get_tweet_id(),
-            self.get_tweet_type(),
-            self.get_tweet_time_ms(),
-            self.get_tweet_author(),
-            self.get_tweet_author_id(),
-            str(self.get_retweeter()),
-            str(self.get_conversation_id()),
-            self.get_tweet_text(),
-            str(self.get_tweet_links()),
-            str(self.get_tweet_hashtags()),
-            str(self.get_tweet_mentions()),
-            self.get_tweet_replies_count(),
-            self.get_tweet_favorite_count(),
-            self.get_tweet_retweet_count()
-        ])
-
     def get_json(self):
         return {
             "id": self.get_tweet_id(),

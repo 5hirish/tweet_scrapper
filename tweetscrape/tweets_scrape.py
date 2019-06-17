@@ -50,7 +50,12 @@ class TweetScrapper:
         tweet_count = 0
         last_tweet_id = ''
 
-        while pages > 0:
+        if pages < 0:
+            is_stream = True
+        else:
+            is_stream = False
+
+        while pages > 0 or is_stream:
             current_tweet_count = 0
 
             twitter_request_params_encoded = parse.urlencode(self.__twitter_request_params__, quote_via=parse.quote)
@@ -59,7 +64,7 @@ class TweetScrapper:
                                     headers=self.__twitter_request_header__,
                                     params=twitter_request_params_encoded)
 
-            logger.debug("Page {0} request: {1}".format(pages, response.status_code))
+            logger.debug("Page {0} request: {1}".format(abs(pages), response.status_code))
 
             tweet_json = response.json()
 
@@ -98,6 +103,9 @@ class TweetScrapper:
 
             pages += -1
             if current_tweet_count > 0:
+                # composed_count: 0
+                # interval: 30000
+                # latent_count: 0
                 # self.__twitter_request_params__['min_position'] = last_tweet_id
                 self.__twitter_request_params__['max_position'] = last_tweet_id
             else:
