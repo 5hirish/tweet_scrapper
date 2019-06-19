@@ -4,8 +4,10 @@ import requests
 import logging
 import csv
 import json
+import random
 from lxml import etree
 from urllib import parse
+from datetime import datetime
 
 from tweetscrape.model.tweet_model import TweetInfo
 
@@ -13,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 class TweetScrapper:
-
     __twitter_request_url__ = None
     __twitter_request_header__ = None
     __twitter_request_params__ = None
@@ -35,36 +36,57 @@ class TweetScrapper:
 
     _tweet_hastag_pattern_ = r'''/hashtag/([0-9a-zA-Z_]*)\?src=hash'''
 
-    def __init__(self, twitter_request_url, twitter_request_header, twitter_request_params=None,
+    __twitter_user_agent__ = [
+        'Mozilla/5.0 (Windows; U; Windows NT 6.1; x64; fr; rv:1.9.2.13) Gecko/20101203 Firebird/3.6.13',
+        'Mozilla/5.0 (compatible, MSIE 11, Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
+        'Mozilla/5.0 (Windows; U; Windows NT 6.1; rv:2.2) Gecko/20110201',
+        'Opera/9.80 (X11; Linux i686; Ubuntu/14.10) Presto/2.12.388 Version/12.16',
+        'Mozilla/5.0 (Windows NT 5.2; RW; rv:7.0a1) Gecko/20091211 SeaMonkey/9.23a1pre'
+    ]
+
+    __twitter_request_header__ = {
+        'accept': 'application/json, text/javascript, */*; q=0.01',
+        'accept-language': 'en-US,en;q=0.8',
+        'user-agent': random.choice(__twitter_user_agent__),
+        'x-requested-with': 'XMLHttpRequest',
+        'x-twitter-active-user': 'yes',
+        'x-twitter-polling': 'true',
+    }
+
+    scrape_pages = 2
+
+    def __init__(self, twitter_request_url, twitter_request_header, twitter_request_params=None, scrape_pages=2,
                  twitter_file_path=None, twitter_file_format='json'):
 
         self.__twitter_request_url__ = twitter_request_url
-        self.__twitter_request_header__ = twitter_request_header
+        self.__twitter_request_header__ = dict(self.__twitter_request_header__.items() + twitter_request_header.items())
         self.__twitter_request_params__ = twitter_request_params
+        self.scrape_pages = scrape_pages
         self.__twitter_tweet_persist_file_path__ = twitter_file_path
         self.__twitter_tweet_persist_file_format__ = twitter_file_format
 
-    def execute_twitter_request(self, username=None, search_term=None, pages=2, log_output=False, output_file=None):
-        hastag_capture = re.compile(self._tweet_hastag_pattern_)
-        total_pages = pages
-        tweet_count = 0
-        last_tweet_id = ''
+        self.hashtag_capture = re.compile(self._tweet_hastag_pattern_)
 
-        if pages < 0:
+    def execute_twitter_request(self, username=None, search_term=None, log_output=False, output_file=None):
+        total_pages = self.scrape_pages
+        tweet_count = 0
+        last_tweet_id, last_tweet_time = '', ''
+
+        if self.scrape_pages < 0:
             is_stream = True
         else:
             is_stream = False
 
-        while pages > 0 or is_stream:
+        while self.scrape_pages > 0 or is_stream:
             current_tweet_count = 0
 
-            twitter_request_params_encoded = parse.urlencode(self.__twitter_request_params__, quote_via=parse.quote)
+            twitter_request_params_encoded = parse.urlencode(self.__twitter_request_header__, quote_via=parse.quote)
 
             response = requests.get(self.__twitter_request_url__,
                                     headers=self.__twitter_request_header__,
                                     params=twitter_request_params_encoded)
 
-            logger.debug("Page {0} request: {1}".format(abs(pages), response.status_code))
+            logger.debug("Page {0} request: {1}".format(abs(self.scrape_pages), response.status_code))
 
             tweet_json = response.json()
 
@@ -86,12 +108,13 @@ class TweetScrapper:
                 if html_tree is not None:
                     tweet_list = html_tree.xpath(self._tweets_pattern_)
 
-                    tweets_generator = self.extract_tweets_data(tweet_list, hastag_capture)
-                    last_tweet_id, current_tweet_count = self.persist_tweets(tweets_generator)
+                    tweets_generator = self.extract_tweets_data(tweet_list)
+                    last_tweet_id, last_tweet_time, current_tweet_count = self.persist_tweets(tweets_generator)
                     tweet_count += current_tweet_count
 
                     logger.debug(
-                        "Extracting {0} tweets of {1} page...".format(len(tweet_list), total_pages - pages + 1))
+                        "Extracting {0} tweets of {1} page...".format(len(tweet_list),
+                                                                      total_pages - self.scrape_pages + 1))
 
             except KeyError:
                 if search_term is not None:
@@ -101,21 +124,24 @@ class TweetScrapper:
                 else:
                     raise ValueError("Received no arguments")
 
-            pages += -1
+            if not is_stream:
+                self.scrape_pages += -1
+
             if current_tweet_count > 0:
                 # composed_count: 0
                 # interval: 30000
                 # latent_count: 0
                 # self.__twitter_request_params__['min_position'] = last_tweet_id
+                self.__twitter_request_header__['reset_error_state'] = False
                 self.__twitter_request_params__['max_position'] = last_tweet_id
             else:
                 logger.info("End of tweet stream...")
-                return tweet_count, self.__twitter_tweet_persist_file_path__
+                return tweet_count, last_tweet_time, self.__twitter_tweet_persist_file_path__
 
         logger.info("Total {0} tweets extracted.".format(tweet_count))
-        return tweet_count, self.__twitter_tweet_persist_file_path__
+        return tweet_count, last_tweet_time, self.__twitter_tweet_persist_file_path__
 
-    def extract_tweets_data(self, tweet_list, hastag_capture):
+    def extract_tweets_data(self, tweet_list):
         if tweet_list is not None:
             for tweet in tweet_list:
                 if 'data-item-type' in tweet.attrib and tweet.attrib.get('data-item-type') == "tweet":
@@ -140,7 +166,7 @@ class TweetScrapper:
 
                         tweet_content = tweet_meta.xpath(self._tweet_content_pattern_)
                         if len(tweet_content) > 0:
-                            tweet_time_ms = tweet_content[0].xpath(self._tweet_time_ms_pattern_)[0]\
+                            tweet_time_ms = tweet_content[0].xpath(self._tweet_time_ms_pattern_)[0] \
                                 .attrib.get('data-time-ms')
                             tweet_data.set_tweet_time_ms(tweet_time_ms)
 
@@ -156,7 +182,7 @@ class TweetScrapper:
                                 if raw_url.startswith('https://'):
                                     tweet_data.set_tweet_links(raw_url)
                                 elif raw_url.startswith('/hashtag/'):
-                                    hash_tag_group = re.match(hastag_capture, raw_url)
+                                    hash_tag_group = re.match(self.hashtag_capture, raw_url)
                                     if hash_tag_group is not None and hash_tag_group.group(1) is not None:
                                         hash_tag = "#" + hash_tag_group.group(1)
                                         tweet_data.set_tweet_hashtags(hash_tag)
@@ -185,6 +211,7 @@ class TweetScrapper:
         with open(self.__twitter_tweet_persist_file_path__, dump_mode) as tweet_fp:
             tweet_count = 0
             last_tweet_id = ''
+            last_tweet_timestamp = ''
 
             tweet_csv_writer = csv.DictWriter(tweet_fp, fieldnames=TweetInfo.tweet_fields)
 
@@ -195,6 +222,7 @@ class TweetScrapper:
 
             for tweet in tweets_generator:
                 last_tweet_id = tweet.get_tweet_id()
+                last_tweet_timestamp = tweet.get_tweet_time_ms()
                 tweet_count += 1
                 if self.__twitter_tweet_persist_file_format__ == 'csv':
                     if tweet_fp.tell() == 0:
@@ -209,11 +237,18 @@ class TweetScrapper:
                 tweet_fp.seek(tweet_fp.tell() - 1, os.SEEK_SET)
                 tweet_fp.truncate()
                 tweet_fp.write("]")
-            return last_tweet_id, tweet_count
+
+            try:
+                last_datetime = datetime.fromtimestamp(int(last_tweet_timestamp) // 1000)
+                last_tweet_timestamp = datetime.strftime(last_datetime, "%Y-%m-%d")
+            except ValueError as e:
+                logger.exception(e)
+
+            return last_tweet_id, last_tweet_timestamp, tweet_count
 
 
 def save_output(filename, data):
     if filename is not None and data is not None:
         file_path = os.path.dirname(os.path.realpath(__file__))
-        with open(file_path+filename, 'w') as fp:
+        with open(file_path + filename, 'w') as fp:
             fp.write(data)

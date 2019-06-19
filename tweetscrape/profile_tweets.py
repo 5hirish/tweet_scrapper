@@ -1,6 +1,7 @@
 import logging
 
 from tweetscrape.tweets_scrape import TweetScrapper
+from tweetscrape.search_tweets import TweetScrapperSearch
 
 """
 Parsing with XPath 1.0 query
@@ -23,15 +24,9 @@ class TweetScrapperProfile(TweetScrapper):
     __twitter_profile_params__ = None
 
     def __init__(self, username, pages=2, *args):
-
         self.username = username
-        self.pages = pages
-        # if pages > 25:
-        #     self.pages = 25
-        # else:
-        #     self.pages = pages
 
-        self.__twitter_profile_url__ = 'https://twitter.com/i/profiles/show/{username}/timeline/tweets'\
+        self.__twitter_profile_url__ = 'https://twitter.com/i/profiles/show/{username}/timeline/tweets' \
             .format(username=self.username)
 
         self.__twitter_profile_params__ = {
@@ -41,30 +36,35 @@ class TweetScrapperProfile(TweetScrapper):
         }
 
         self.__twitter_profile_header__ = {
-            'accept': 'application/json, text/javascript, */*; q=0.01',
-            'accept-language': 'en-US,en;q=0.8',
-            'referer': 'https://twitter.com/{username}'.format(username=self.username),
-            'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)'
-                          ' Chrome/60.0.3112.78 Safari/537.36',
-            'x-requested-with': 'XMLHttpRequest',
-            'x-twitter-active-user': 'yes',
-            'x-twitter-polling': 'true',
+            'referer': 'https://twitter.com/{username}'.format(username=self.username)
         }
 
         super().__init__(self.__twitter_profile_url__,
                          self.__twitter_profile_header__,
-                         self.__twitter_profile_params__, *args)
+                         self.__twitter_profile_params__,
+                         pages, *args)
 
     def get_profile_tweets(self, save_output=False):
         output_file_name = '/' + self.username + '_profile'
-        return self.execute_twitter_request(username=self.username, pages=self.pages,
-                                            log_output=save_output, output_file=output_file_name)
+        # Search Profile since: until: from:
+        tweet_count, last_tweet_time, dump_path = self.execute_twitter_request(username=self.username,
+                                                                               log_output=save_output,
+                                                                               output_file=output_file_name)
+
+        if self.pages == -1 or self.pages - 1 * 20 < tweet_count:
+            ts = TweetScrapperSearch(search_from_accounts=self.username,
+                                     search_from_date=TweetScrapperSearch.twitter_from_date,
+                                     search_till_date=last_tweet_time)
+            append_tweet_count, last_tweet_time, dump_path = ts.get_search_tweets(save_output)
+            tweet_count += append_tweet_count
+
+        return tweet_count, last_tweet_time, dump_path
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    ts = TweetScrapperProfile("BarackObama", -1, 'twitter.csv', 'csv')
-    l_tweet_count, l_dump_path = ts.get_profile_tweets(True)
+    l_ts = TweetScrapperProfile("BarackObama", -1, 'twitter.csv', 'csv')
+    l_tweet_count, l_tweet_time, l_dump_path = l_ts.get_profile_tweets(True)
     # for l_tweet in l_extracted_tweets:
     #     print(str(l_tweet))
     print(l_tweet_count)

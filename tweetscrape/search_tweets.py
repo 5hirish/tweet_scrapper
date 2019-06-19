@@ -35,6 +35,8 @@ class TweetScrapperSearch(TweetScrapper):
     __twitter_search_header__ = None
     __twitter_search_params__ = None
 
+    twitter_from_date = "2006-03-21"
+
     def __init__(self,
                  search_all="", search_exact="", search_any="", search_excludes="", search_hashtags="",
                  search_from_accounts="", search_to_accounts="", search_mentions="",
@@ -44,26 +46,20 @@ class TweetScrapperSearch(TweetScrapper):
                  tweet_dump_path="", tweet_dump_format=""):
 
         self.search_type = "typd"
-        self.pages = pages
 
-        constructed_search_query = self.construct_query(search_all, search_exact, search_any,
-                                                        search_excludes, search_hashtags,
-                                                        search_from_accounts, search_to_accounts, search_mentions,
-                                                        search_near_place, search_near_distance,
-                                                        search_from_date, search_till_date)
+        self.intermediate_query = self.construct_query(search_all, search_exact, search_any,
+                                                       search_excludes, search_hashtags,
+                                                       search_from_accounts, search_to_accounts, search_mentions,
+                                                       search_near_place, search_near_distance)
 
-        self.search_term = constructed_search_query
+        self.time_query = self.update_time_interval(search_from_date, search_till_date)
+
         # self.search_term = parse.quote(constructed_search_query)
 
         # if search_all.startswith("#"):
         #     self.search_type = "hash"
         # else:
         #     self.search_type = "typd"
-
-        # if pages > 25:
-        #     self.pages = 25
-        # else:
-        #     self.pages = pages
 
         self.__twitter_search_url__ = 'https://twitter.com/i/search/timeline'
 
@@ -78,25 +74,44 @@ class TweetScrapperSearch(TweetScrapper):
         }
 
         self.__twitter_search_header__ = {
-            'accept': 'application/json, text/javascript, */*; q=0.01',
-            'accept-language': 'en-US,en;q=0.8',
             'referer': 'https://twitter.com/search?q={search_term}&src={search_type}'
-                .format(search_term=self.search_term, search_type=self.search_type),
-            'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)'
-                          ' Chrome/60.0.3112.78 Safari/537.36',
-            'x-requested-with': 'XMLHttpRequest',
-            'x-twitter-active-user': 'yes'
+                .format(search_term=self.search_term, search_type=self.search_type)
         }
 
         super().__init__(self.__twitter_search_url__,
                          self.__twitter_search_header__,
                          self.__twitter_search_params__,
-                         tweet_dump_path, tweet_dump_format)
+                         pages, tweet_dump_path, tweet_dump_format)
 
     def get_search_tweets(self, save_output=False):
-        output_file_name = '/' + self.search_term + '_search'
-        return self.execute_twitter_request(search_term=self.search_term, pages=self.pages,
-                                            log_output=save_output, output_file=output_file_name)
+        search_query = self.intermediate_query + " " + self.time_query
+
+        output_file_name = '/' + search_query + '_search'
+        tweet_count, last_tweet_time, dump_path = self.execute_twitter_request(search_term=self.search_term,
+                                                                               log_output=save_output,
+                                                                               output_file=output_file_name)
+
+        # Stop Iteration ?
+        if self.pages == -1 or self.pages - 1 * 20 < tweet_count:
+            self.time_query = self.update_time_interval(search_from_date=self.twitter_from_date,
+                                                        search_till_date=last_tweet_time)
+            append_tweet_count, last_tweet_time, dump_path = self.get_search_tweets(save_output)
+            tweet_count += append_tweet_count
+
+        return tweet_count, last_tweet_time, dump_path
+
+    @staticmethod
+    def update_time_interval(search_from_date, search_till_date):
+
+        if search_from_date is not None and search_from_date != "" and valid_date_format(search_from_date):
+            search_from_date = "since:" + search_from_date
+
+            if search_till_date is not None and search_till_date != "" and valid_date_format(search_from_date):
+                search_till_date = "until:" + search_till_date
+            else:
+                search_till_date = datetime.strftime(datetime.now(), "%Y-%m-%d")
+
+        return search_from_date + " " + search_till_date
 
     @staticmethod
     def construct_query(search_all, search_exact, search_any, search_excludes, search_hashtags,
@@ -152,7 +167,7 @@ class TweetScrapperSearch(TweetScrapper):
             search_from_date = "since:" + search_from_date
 
             if search_till_date is not None and search_till_date != "" and valid_date_format(search_from_date):
-                search_till_date = "untill:" + search_till_date
+                search_till_date = "until:" + search_till_date
             else:
                 search_till_date = datetime.strftime(datetime.now(), "%Y-%m-%d")
 
@@ -185,13 +200,13 @@ def valid_date_format(date_str, date_format='%Y-%m-%d'):
 
 
 if __name__ == '__main__':
-
     # avengers%20infinity%20war%20%22avengers%22%20-asia%20%23avengers%20from%3Amarvel%20since%3A2019-06-01
     # avengers infinity war "avengers" -asia #avengers from:marvel since:2019-06-01
 
     logging.basicConfig(level=logging.DEBUG)
 
-    ts = TweetScrapperSearch(search_all="avengers infinity war", tweet_dump_path='twitter.json', tweet_dump_format='json')
+    ts = TweetScrapperSearch(search_all="avengers infinity war", tweet_dump_path='twitter.json',
+                             tweet_dump_format='json')
     # ts = TweetScrapperSearch(search_hashtags="FakeNews Trump", pages=1)
     #
     # # avengers endgame spiderman OR ironman -spoilers
@@ -209,7 +224,7 @@ if __name__ == '__main__':
     #                          pages=1)
     #
     # ts = TweetScrapperSearch(search_hashtags="raptors", search_near_place="toronto", pages=1)
-    l_tweet_count, l_dump_path = ts.get_search_tweets(True)
+    l_tweet_count, l_last_time, l_dump_path = ts.get_search_tweets(True)
     # for l_tweet in l_extracted_tweets:
     #     print(str(l_tweet))
     print(l_tweet_count)
