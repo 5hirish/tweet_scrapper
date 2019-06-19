@@ -46,6 +46,7 @@ class TweetScrapperSearch(TweetScrapper):
                  tweet_dump_path="", tweet_dump_format=""):
 
         self.search_type = "typd"
+        self.pages = pages
 
         self.intermediate_query = self.construct_query(search_all, search_exact, search_any,
                                                        search_excludes, search_hashtags,
@@ -64,9 +65,9 @@ class TweetScrapperSearch(TweetScrapper):
         self.__twitter_search_url__ = 'https://twitter.com/i/search/timeline'
 
         self.__twitter_search_params__ = {
+            'f': 'tweets',
             'vertical': 'default',
             'src': self.search_type,
-            'q': self.search_term,
             'l': language,
             'include_available_features': 1,
             'include_entities': 1,
@@ -75,7 +76,7 @@ class TweetScrapperSearch(TweetScrapper):
 
         self.__twitter_search_header__ = {
             'referer': 'https://twitter.com/search?q={search_term}&src={search_type}'
-                .format(search_term=self.search_term, search_type=self.search_type)
+                .format(search_term=self.intermediate_query, search_type=self.search_type)
         }
 
         super().__init__(self.__twitter_search_url__,
@@ -84,15 +85,22 @@ class TweetScrapperSearch(TweetScrapper):
                          pages, tweet_dump_path, tweet_dump_format)
 
     def get_search_tweets(self, save_output=False):
-        search_query = self.intermediate_query + " " + self.time_query
+        if self.time_query is not None and self.time_query != "":
+            search_query = self.intermediate_query + " " + self.time_query
+        else:
+            search_query = self.intermediate_query
+
+        self.__twitter_request_params__['q'] = search_query
 
         output_file_name = '/' + search_query + '_search'
-        tweet_count, last_tweet_time, dump_path = self.execute_twitter_request(search_term=self.search_term,
+        tweet_count, last_tweet_time, dump_path = self.execute_twitter_request(search_term=search_query,
                                                                                log_output=save_output,
                                                                                output_file=output_file_name)
 
         # Stop Iteration ?
-        if self.pages == -1 or self.pages - 1 * 20 < tweet_count:
+        if self.pages == -1 or self.pages - 1 * 20 > tweet_count:
+            logger.info("Recursive search. Profile Limit exhausted")
+
             self.time_query = self.update_time_interval(search_from_date=self.twitter_from_date,
                                                         search_till_date=last_tweet_time)
             append_tweet_count, last_tweet_time, dump_path = self.get_search_tweets(save_output)
@@ -116,7 +124,7 @@ class TweetScrapperSearch(TweetScrapper):
     @staticmethod
     def construct_query(search_all, search_exact, search_any, search_excludes, search_hashtags,
                         search_from_accounts, search_to_accounts, search_mentions, search_near_place,
-                        search_near_distance, search_from_date, search_till_date):
+                        search_near_distance, search_from_date=None, search_till_date=None):
 
         search_query_filters = []
 
@@ -187,7 +195,7 @@ def prefix_operator(query_str, prefix_op):
         if tag[0] != prefix_op:
             query_list[i] = prefix_op + tag
 
-    return " OR ".join(query_list.split())
+    return " OR ".join(query_list)
 
 
 def valid_date_format(date_str, date_format='%Y-%m-%d'):
@@ -205,8 +213,12 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.DEBUG)
 
-    ts = TweetScrapperSearch(search_all="avengers infinity war", tweet_dump_path='twitter.json',
-                             tweet_dump_format='json')
+    # ts = TweetScrapperSearch(search_all="avengers infinity war", tweet_dump_path='twitter.json',
+    #                          tweet_dump_format='json')
+    ts = TweetScrapperSearch(search_from_accounts="BarackObama",
+                             tweet_dump_path='twitter.csv',
+                             pages=-1,
+                             tweet_dump_format='csv')
     # ts = TweetScrapperSearch(search_hashtags="FakeNews Trump", pages=1)
     #
     # # avengers endgame spiderman OR ironman -spoilers

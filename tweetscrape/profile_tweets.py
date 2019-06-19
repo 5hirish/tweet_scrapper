@@ -25,6 +25,7 @@ class TweetScrapperProfile(TweetScrapper):
 
     def __init__(self, username, pages=2, *args):
         self.username = username
+        self.pages = pages
 
         self.__twitter_profile_url__ = 'https://twitter.com/i/profiles/show/{username}/timeline/tweets' \
             .format(username=self.username)
@@ -52,6 +53,7 @@ class TweetScrapperProfile(TweetScrapper):
                                                                                output_file=output_file_name)
 
         if self.pages == -1 or self.pages - 1 * 20 < tweet_count:
+            logger.info("Switching to search mode. Profile Limit exhausted")
             ts = TweetScrapperSearch(search_from_accounts=self.username,
                                      search_from_date=TweetScrapperSearch.twitter_from_date,
                                      search_till_date=last_tweet_time)

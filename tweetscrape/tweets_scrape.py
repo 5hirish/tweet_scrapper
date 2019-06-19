@@ -20,7 +20,10 @@ class TweetScrapper:
     __twitter_request_params__ = None
 
     _tweets_pattern_ = '''/html/body/li[contains(@class,"stream-item")]'''
+    # _tweets_pattern_ = '''//*[@id="stream-items-id"]/li'''
+    _tweet_stream_max_ = '''//*[@id="timeline"]/div'''
 
+    _tweet_min_position = '''data-min-position'''
     _tweet_content_pattern_ = '''./div[@class="content"]'''
     _tweet_time_ms_pattern_ = '''./div[@class="stream-item-header"]/
                                         small[@class="time"]/a[contains(@class,"tweet-timestamp")]/span'''
@@ -59,7 +62,7 @@ class TweetScrapper:
                  twitter_file_path=None, twitter_file_format='json'):
 
         self.__twitter_request_url__ = twitter_request_url
-        self.__twitter_request_header__ = dict(self.__twitter_request_header__.items() + twitter_request_header.items())
+        self.__twitter_request_header__.update(twitter_request_header)
         self.__twitter_request_params__ = twitter_request_params
         self.scrape_pages = scrape_pages
         self.__twitter_tweet_persist_file_path__ = twitter_file_path
@@ -79,8 +82,9 @@ class TweetScrapper:
 
         while self.scrape_pages > 0 or is_stream:
             current_tweet_count = 0
+            min_position = None
 
-            twitter_request_params_encoded = parse.urlencode(self.__twitter_request_header__, quote_via=parse.quote)
+            twitter_request_params_encoded = parse.urlencode(self.__twitter_request_params__, quote_via=parse.quote)
 
             response = requests.get(self.__twitter_request_url__,
                                     headers=self.__twitter_request_header__,
@@ -93,19 +97,23 @@ class TweetScrapper:
             try:
                 if tweet_json.get('has_more_items'):
                     num_new_tweets = tweet_json.get('new_latent_count')
+                    min_position = tweet_json.get('min_position')
                 else:
                     logger.info("No more items...!!!")
 
-                tweets_html = tweet_json.get('items_html')
+                if 'items_html' in tweet_json:
+                    tweets_html = tweet_json.get('items_html')
+                else:
+                    tweets_html = tweet_json.get('page')
 
                 if log_output:
-                    # save_output(output_file + '.json', str(tweet_json))
                     save_output(output_file + '.html', tweets_html)
 
                 parser = etree.HTMLParser(remove_blank_text=True, remove_comments=True)
                 html_tree = etree.fromstring(tweets_html, parser)
 
                 if html_tree is not None:
+                    tweet_stream = html_tree.xpath(self._tweet_stream_max_)
                     tweet_list = html_tree.xpath(self._tweets_pattern_)
 
                     tweets_generator = self.extract_tweets_data(tweet_list)
@@ -127,13 +135,13 @@ class TweetScrapper:
             if not is_stream:
                 self.scrape_pages += -1
 
-            if current_tweet_count > 0:
+            if current_tweet_count > 0 and min_position is not None:
                 # composed_count: 0
                 # interval: 30000
                 # latent_count: 0
                 # self.__twitter_request_params__['min_position'] = last_tweet_id
-                self.__twitter_request_header__['reset_error_state'] = False
-                self.__twitter_request_params__['max_position'] = last_tweet_id
+                self.__twitter_request_params__['reset_error_state'] = 'false'
+                self.__twitter_request_params__['max_position'] = min_position
             else:
                 logger.info("End of tweet stream...")
                 return tweet_count, last_tweet_time, self.__twitter_tweet_persist_file_path__
