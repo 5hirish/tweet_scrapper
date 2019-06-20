@@ -62,6 +62,7 @@ class TweetScrapperSearch(TweetScrapper):
         # else:
         #     self.search_type = "typd"
 
+        self.__twitter_search_init_url__ = 'https://twitter.com/search'
         self.__twitter_search_url__ = 'https://twitter.com/i/search/timeline'
 
         self.__twitter_search_params__ = {
@@ -79,7 +80,7 @@ class TweetScrapperSearch(TweetScrapper):
                 .format(search_term=self.intermediate_query, search_type=self.search_type)
         }
 
-        super().__init__(self.__twitter_search_url__,
+        super().__init__(self.__twitter_search_init_url__,
                          self.__twitter_search_header__,
                          self.__twitter_search_params__,
                          pages, tweet_dump_path, tweet_dump_format)
@@ -96,6 +97,8 @@ class TweetScrapperSearch(TweetScrapper):
         tweet_count, last_tweet_time, dump_path = self.execute_twitter_request(search_term=search_query,
                                                                                log_output=save_output,
                                                                                output_file=output_file_name)
+
+        self.__twitter_request_url__ = self.__twitter_search_url__
 
         # Stop Iteration ?
         if self.pages == -1 or self.pages - 1 * 20 > tweet_count:
@@ -117,7 +120,7 @@ class TweetScrapperSearch(TweetScrapper):
             if search_till_date is not None and search_till_date != "" and valid_date_format(search_from_date):
                 search_till_date = "until:" + search_till_date
             else:
-                search_till_date = datetime.strftime(datetime.now(), "%Y-%m-%d")
+                search_till_date = "until:" + datetime.strftime(datetime.now(), "%Y-%m-%d")
 
         return search_from_date + " " + search_till_date
 
@@ -177,7 +180,7 @@ class TweetScrapperSearch(TweetScrapper):
             if search_till_date is not None and search_till_date != "" and valid_date_format(search_from_date):
                 search_till_date = "until:" + search_till_date
             else:
-                search_till_date = datetime.strftime(datetime.now(), "%Y-%m-%d")
+                search_till_date = "until:" + datetime.strftime(datetime.now(), "%Y-%m-%d")
 
             search_query_filters.append(search_from_date)
             search_query_filters.append(search_till_date)

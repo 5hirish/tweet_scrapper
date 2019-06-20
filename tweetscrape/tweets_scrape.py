@@ -8,6 +8,7 @@ import random
 from lxml import etree
 from urllib import parse
 from datetime import datetime
+from json.decoder import JSONDecodeError
 
 from tweetscrape.model.tweet_model import TweetInfo
 
@@ -19,8 +20,7 @@ class TweetScrapper:
     __twitter_request_header__ = None
     __twitter_request_params__ = None
 
-    _tweets_pattern_ = '''/html/body/li[contains(@class,"stream-item")]'''
-    # _tweets_pattern_ = '''//*[@id="stream-items-id"]/li'''
+    _tweets_pattern_ = '''//li[contains(@class,"stream-item")]'''
     _tweet_stream_max_ = '''//*[@id="timeline"]/div'''
 
     _tweet_min_position = '''data-min-position'''
@@ -56,6 +56,7 @@ class TweetScrapper:
         'x-twitter-polling': 'true',
     }
 
+    current_cursor = None
     scrape_pages = 2
 
     def __init__(self, twitter_request_url, twitter_request_header, twitter_request_params=None, scrape_pages=2,
@@ -70,6 +71,11 @@ class TweetScrapper:
 
         self.hashtag_capture = re.compile(self._tweet_hastag_pattern_)
 
+        self.html_parser = etree.HTMLParser(remove_blank_text=True, remove_comments=True)
+
+    def switch_user_agent(self):
+        self.__twitter_request_header__['user-agent'] = random.choice(self.__twitter_user_agent__)
+
     def execute_twitter_request(self, username=None, search_term=None, log_output=False, output_file=None):
         total_pages = self.scrape_pages
         tweet_count = 0
@@ -79,6 +85,10 @@ class TweetScrapper:
             is_stream = True
         else:
             is_stream = False
+
+        if self.current_cursor is not None:
+            self.__twitter_request_params__['reset_error_state'] = 'false'
+            self.__twitter_request_params__['max_position'] = self.current_cursor
 
         while self.scrape_pages > 0 or is_stream:
             current_tweet_count = 0
@@ -90,30 +100,45 @@ class TweetScrapper:
                                     headers=self.__twitter_request_header__,
                                     params=twitter_request_params_encoded)
 
-            logger.debug("Page {0} request: {1}".format(abs(self.scrape_pages), response.status_code))
+            if response.ok and response.status_code == 200:
 
-            tweet_json = response.json()
+                logger.debug("Page {0} request: {1}".format(abs(self.scrape_pages), response.status_code))
 
-            try:
-                if tweet_json.get('has_more_items'):
-                    num_new_tweets = tweet_json.get('new_latent_count')
-                    min_position = tweet_json.get('min_position')
-                else:
-                    logger.info("No more items...!!!")
+                try:
+                    tweet_json = response.json()
 
-                if 'items_html' in tweet_json:
-                    tweets_html = tweet_json.get('items_html')
-                else:
-                    tweets_html = tweet_json.get('page')
+                    try:
+                        if tweet_json.get('has_more_items'):
+                            num_new_tweets = tweet_json.get('new_latent_count')
+                            min_position = tweet_json.get('min_position')
+                        else:
+                            logger.info("No more items...!!!")
+
+                        if 'items_html' in tweet_json:
+                            tweets_html = tweet_json.get('items_html')
+                        else:
+                            tweets_html = tweet_json.get('page')
+
+                    except KeyError:
+                        if search_term is not None:
+                            raise ValueError("Oops! Something went wrong while searching {0}.".format(search_term))
+                        elif username is not None:
+                            raise ValueError("Oops! Either {0} does not exist or is private.".format(username))
+                        else:
+                            raise ValueError("Received no arguments")
+
+                except JSONDecodeError:
+                    tweets_html = response.text
 
                 if log_output:
                     save_output(output_file + '.html', tweets_html)
 
-                parser = etree.HTMLParser(remove_blank_text=True, remove_comments=True)
-                html_tree = etree.fromstring(tweets_html, parser)
+                html_tree = etree.fromstring(tweets_html, self.html_parser)
 
                 if html_tree is not None:
                     tweet_stream = html_tree.xpath(self._tweet_stream_max_)
+                    if tweet_stream is not None and len(tweet_stream) > 0:
+                        min_position = tweet_stream[0].attrib['data-min-position']
                     tweet_list = html_tree.xpath(self._tweets_pattern_)
 
                     tweets_generator = self.extract_tweets_data(tweet_list)
@@ -124,27 +149,21 @@ class TweetScrapper:
                         "Extracting {0} tweets of {1} page...".format(len(tweet_list),
                                                                       total_pages - self.scrape_pages + 1))
 
-            except KeyError:
-                if search_term is not None:
-                    raise ValueError("Oops! Something went wrong while searching {0}.".format(search_term))
-                elif username is not None:
-                    raise ValueError("Oops! Either {0} does not exist or is private.".format(username))
+                if not is_stream:
+                    self.scrape_pages += -1
+
+                self.current_cursor = min_position
+
+                if current_tweet_count > 0 and min_position is not None:
+                    # composed_count: 0
+                    # interval: 30000
+                    # latent_count: 0
+                    # self.__twitter_request_params__['min_position'] = last_tweet_id
+                    self.__twitter_request_params__['reset_error_state'] = 'false'
+                    self.__twitter_request_params__['max_position'] = self.current_cursor
                 else:
-                    raise ValueError("Received no arguments")
-
-            if not is_stream:
-                self.scrape_pages += -1
-
-            if current_tweet_count > 0 and min_position is not None:
-                # composed_count: 0
-                # interval: 30000
-                # latent_count: 0
-                # self.__twitter_request_params__['min_position'] = last_tweet_id
-                self.__twitter_request_params__['reset_error_state'] = 'false'
-                self.__twitter_request_params__['max_position'] = min_position
-            else:
-                logger.info("End of tweet stream...")
-                return tweet_count, last_tweet_time, self.__twitter_tweet_persist_file_path__
+                    logger.info("End of tweet stream...")
+                    return tweet_count, last_tweet_time, self.__twitter_tweet_persist_file_path__
 
         logger.info("Total {0} tweets extracted.".format(tweet_count))
         return tweet_count, last_tweet_time, self.__twitter_tweet_persist_file_path__
@@ -216,7 +235,7 @@ class TweetScrapper:
             self.__twitter_tweet_persist_file_path__ = os.getcwd() + 'tweets_dump.' + \
                                                        self.__twitter_tweet_persist_file_format__
 
-        with open(self.__twitter_tweet_persist_file_path__, dump_mode) as tweet_fp:
+        with open(self.__twitter_tweet_persist_file_path__, dump_mode, encoding="utf-8") as tweet_fp:
             tweet_count = 0
             last_tweet_id = ''
             last_tweet_timestamp = ''
