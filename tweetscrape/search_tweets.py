@@ -102,7 +102,7 @@ class TweetScrapperSearch(TweetScrapper):
 
         # Stop Iteration ?
         if self.pages == -1 or self.pages - 1 * 20 > tweet_count:
-            logger.info("Recursive search. Profile Limit exhausted")
+            logger.info("Recursive search. Profile Limit exhausted: Till:"+last_tweet_time)
 
             self.time_query = self.update_time_interval(search_from_date=self.twitter_from_date,
                                                         search_till_date=last_tweet_time)

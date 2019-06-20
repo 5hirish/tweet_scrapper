@@ -142,7 +142,9 @@ class TweetScrapper:
                     tweet_list = html_tree.xpath(self._tweets_pattern_)
 
                     tweets_generator = self.extract_tweets_data(tweet_list)
-                    last_tweet_id, last_tweet_time, current_tweet_count = self.persist_tweets(tweets_generator)
+                    last_tweet_id, tweet_time, current_tweet_count = self.persist_tweets(tweets_generator)
+                    if tweet_time != "":
+                        last_tweet_time = tweet_time
                     tweet_count += current_tweet_count
 
                     logger.debug(
