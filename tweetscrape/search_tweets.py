@@ -101,7 +101,7 @@ class TweetScrapperSearch(TweetScrapper):
         self.__twitter_request_url__ = self.__twitter_search_url__
 
         # Stop Iteration ?
-        if self.pages == -1 or self.pages - 1 * 20 > tweet_count:
+        if last_tweet_time != "" and (self.pages == -1 or self.pages - 1 * 20 > tweet_count):
             logger.info("Recursive search. Profile Limit exhausted: Till:"+last_tweet_time)
 
             self.time_query = self.update_time_interval(search_from_date=self.twitter_from_date,
@@ -111,23 +111,28 @@ class TweetScrapperSearch(TweetScrapper):
 
         return tweet_count, last_tweet_time, dump_path
 
-    @staticmethod
-    def update_time_interval(search_from_date, search_till_date):
+    def update_time_interval(self, search_from_date, search_till_date):
 
-        if search_from_date is not None and search_from_date != "" and valid_date_format(search_from_date):
+        if search_from_date is not None and search_from_date != "" and valid_date_format(search_from_date,
+                                                                                         self.twitter_date_format):
             search_from_date = "since:" + search_from_date
 
-            if search_till_date is not None and search_till_date != "" and valid_date_format(search_from_date):
-                search_till_date = "until:" + search_till_date
+            if search_till_date is not None and search_till_date != "" and valid_date_format(search_from_date,
+                                                                                             self.twitter_date_format):
+                if datetime.strptime(search_from_date, self.twitter_date_format) >= \
+                        datetime.strptime(search_till_date, self.twitter_date_format):
+                    search_till_date = "until:" + search_till_date
+                else:
+                    search_till_date = "until:" + self.twitter_from_date
             else:
-                search_till_date = "until:" + datetime.strftime(datetime.now(), "%Y-%m-%d")
+                search_till_date = "until:" + self.twitter_from_date
 
         return search_from_date + " " + search_till_date
 
     @staticmethod
     def construct_query(search_all, search_exact, search_any, search_excludes, search_hashtags,
                         search_from_accounts, search_to_accounts, search_mentions, search_near_place,
-                        search_near_distance, search_from_date=None, search_till_date=None):
+                        search_near_distance):
 
         search_query_filters = []
 
@@ -174,17 +179,6 @@ class TweetScrapperSearch(TweetScrapper):
             search_query_filters.append(search_near_place)
             search_query_filters.append(search_near_distance)
 
-        if search_from_date is not None and search_from_date != "" and valid_date_format(search_from_date):
-            search_from_date = "since:" + search_from_date
-
-            if search_till_date is not None and search_till_date != "" and valid_date_format(search_from_date):
-                search_till_date = "until:" + search_till_date
-            else:
-                search_till_date = "until:" + datetime.strftime(datetime.now(), "%Y-%m-%d")
-
-            search_query_filters.append(search_from_date)
-            search_query_filters.append(search_till_date)
-
         search_query = ' '.join(search_query_filters)
 
         logger.info("Search:|{0}|".format(search_query))
@@ -218,10 +212,18 @@ if __name__ == '__main__':
 
     # ts = TweetScrapperSearch(search_all="avengers infinity war", tweet_dump_path='twitter.json',
     #                          tweet_dump_format='json')
+    #
+    # ts = TweetScrapperSearch(search_from_accounts="BarackObama",
+    #                          tweet_dump_path='twitter.csv',
+    #                          pages=-1,
+    #                          tweet_dump_format='csv')
+
     ts = TweetScrapperSearch(search_from_accounts="BarackObama",
                              tweet_dump_path='twitter.csv',
+                             search_from_date="2012-11-07",
                              pages=-1,
                              tweet_dump_format='csv')
+
     # ts = TweetScrapperSearch(search_hashtags="FakeNews Trump", pages=1)
     #
     # # avengers endgame spiderman OR ironman -spoilers

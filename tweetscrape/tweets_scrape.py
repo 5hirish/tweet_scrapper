@@ -56,6 +56,7 @@ class TweetScrapper:
         'x-twitter-polling': 'true',
     }
 
+    twitter_date_format = '%Y-%m-%d'
     current_cursor = None
     scrape_pages = 2
 
@@ -269,9 +270,9 @@ class TweetScrapper:
 
             try:
                 last_datetime = datetime.fromtimestamp(int(last_tweet_timestamp) // 1000)
-                last_tweet_timestamp = datetime.strftime(last_datetime, "%Y-%m-%d")
+                last_tweet_timestamp = datetime.strftime(last_datetime, self.twitter_date_format)
             except ValueError as e:
-                logger.exception(e)
+                logger.warning("Unable to get last tweet timestamp")
 
             return last_tweet_id, last_tweet_timestamp, tweet_count
 
