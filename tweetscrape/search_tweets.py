@@ -41,7 +41,7 @@ class TweetScrapperSearch(TweetScrapper):
                  search_all="", search_exact="", search_any="", search_excludes="", search_hashtags="",
                  search_from_accounts="", search_to_accounts="", search_mentions="",
                  search_near_place="", search_near_distance="",
-                 search_from_date="", search_till_date="",
+                 search_till_date="", search_since_date="",
                  pages=2, language='',
                  tweet_dump_path="", tweet_dump_format=""):
 
@@ -53,7 +53,7 @@ class TweetScrapperSearch(TweetScrapper):
                                                        search_from_accounts, search_to_accounts, search_mentions,
                                                        search_near_place, search_near_distance)
 
-        self.time_query = self.update_time_interval(search_from_date, search_till_date)
+        self.time_query = self.update_time_interval(search_since_date, search_till_date)
 
         # self.search_term = parse.quote(constructed_search_query)
 
@@ -102,32 +102,33 @@ class TweetScrapperSearch(TweetScrapper):
 
         # Stop Iteration ?
         if last_tweet_time != "" and (self.pages == -1 or self.pages - 1 * 20 > tweet_count):
-            logger.info("Recursive search. Profile Limit exhausted: Till:"+last_tweet_time)
+            logger.info("Recursive search. Profile Limit exhausted: Till:" + last_tweet_time)
 
-            self.time_query = self.update_time_interval(search_from_date=self.twitter_from_date,
+            self.time_query = self.update_time_interval(search_since_date=self.twitter_from_date,
                                                         search_till_date=last_tweet_time)
             append_tweet_count, last_tweet_time, dump_path = self.get_search_tweets(save_output)
             tweet_count += append_tweet_count
 
         return tweet_count, last_tweet_time, dump_path
 
-    def update_time_interval(self, search_from_date, search_till_date):
+    def update_time_interval(self, search_since_date, search_till_date):
 
-        if search_from_date is not None and search_from_date != "" and valid_date_format(search_from_date,
+        if search_till_date is not None and search_till_date != "" and valid_date_format(search_till_date,
                                                                                          self.twitter_date_format):
-            search_from_date = "since:" + search_from_date
+            search_till_date = "until:" + search_till_date
 
-            if search_till_date is not None and search_till_date != "" and valid_date_format(search_from_date,
-                                                                                             self.twitter_date_format):
-                if datetime.strptime(search_from_date, self.twitter_date_format) >= \
-                        datetime.strptime(search_till_date, self.twitter_date_format):
-                    search_till_date = "until:" + search_till_date
+            if search_since_date is not None and search_since_date != "" and valid_date_format(search_since_date,
+                                                                                               self.twitter_date_format):
+                if datetime.strptime(search_since_date, self.twitter_date_format) <= \
+                        datetime.strptime(search_till_date.replace('until:', ''), self.twitter_date_format):
+
+                    search_since_date = "since:" + search_since_date
                 else:
-                    search_till_date = "until:" + self.twitter_from_date
+                    search_since_date = "since:" + self.twitter_from_date
             else:
-                search_till_date = "until:" + self.twitter_from_date
+                search_since_date = "since:" + self.twitter_from_date
 
-        return search_from_date + " " + search_till_date
+        return search_since_date + " " + search_till_date
 
     @staticmethod
     def construct_query(search_all, search_exact, search_any, search_excludes, search_hashtags,
@@ -220,7 +221,7 @@ if __name__ == '__main__':
 
     ts = TweetScrapperSearch(search_from_accounts="BarackObama",
                              tweet_dump_path='twitter.csv',
-                             search_from_date="2012-11-07",
+                             search_till_date="2012-11-07",
                              pages=-1,
                              tweet_dump_format='csv')
 
@@ -237,7 +238,7 @@ if __name__ == '__main__':
     #                          pages=2)
     #
     # ts = TweetScrapperSearch(search_all="raptors",
-    #                          search_from_date="2019-03-01", search_till_date="2019-06-01",
+    #                          search_since_date="2019-03-01", search_till_date="2019-06-01",
     #                          pages=1)
     #
     # ts = TweetScrapperSearch(search_hashtags="raptors", search_near_place="toronto", pages=1)
