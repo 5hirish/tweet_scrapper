@@ -48,25 +48,25 @@ class TweetScrapperProfile(TweetScrapper):
     def get_profile_tweets(self, save_output=False):
         output_file_name = '/' + self.username + '_profile'
         # Search Profile since: until: from:
-        tweet_count, last_tweet_time, dump_path = self.execute_twitter_request(username=self.username,
-                                                                               log_output=save_output,
-                                                                               output_file=output_file_name)
+        tweet_count, last_tweet_id, last_tweet_time, dump_path = self.execute_twitter_request(username=self.username,
+                                                                                              log_output=save_output,
+                                                                                              output_file=output_file_name)
 
         if self.pages == -1 or self.pages - 1 * 20 < tweet_count:
             logger.info("Switching to search mode. Profile Limit exhausted")
             ts = TweetScrapperSearch(search_from_accounts=self.username,
-                                     search_from_date=TweetScrapperSearch.twitter_from_date,
+                                     search_since_date=TweetScrapperSearch.twitter_from_date,
                                      search_till_date=last_tweet_time)
-            append_tweet_count, last_tweet_time, dump_path = ts.get_search_tweets(save_output)
+            append_tweet_count, last_tweet_id, last_tweet_time, dump_path = ts.get_search_tweets(save_output)
             tweet_count += append_tweet_count
 
-        return tweet_count, last_tweet_time, dump_path
+        return tweet_count, last_tweet_id, last_tweet_time, dump_path
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     l_ts = TweetScrapperProfile("BarackObama", -1, 'twitter.csv', 'csv')
-    l_tweet_count, l_tweet_time, l_dump_path = l_ts.get_profile_tweets(True)
+    l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = l_ts.get_profile_tweets(True)
     # for l_tweet in l_extracted_tweets:
     #     print(str(l_tweet))
     print(l_tweet_count)

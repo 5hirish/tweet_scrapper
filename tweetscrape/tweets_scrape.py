@@ -143,9 +143,12 @@ class TweetScrapper:
                     tweet_list = html_tree.xpath(self._tweets_pattern_)
 
                     tweets_generator = self.extract_tweets_data(tweet_list)
-                    last_tweet_id, tweet_time, current_tweet_count = self.persist_tweets(tweets_generator)
+                    tweet_id, tweet_time, current_tweet_count = self.persist_tweets(tweets_generator)
+
                     if tweet_time != "":
                         last_tweet_time = tweet_time
+                    if tweet_id != "":
+                        last_tweet_id = tweet_id
                     tweet_count += current_tweet_count
 
                     logger.debug(
@@ -166,10 +169,10 @@ class TweetScrapper:
                     self.__twitter_request_params__['max_position'] = self.current_cursor
                 else:
                     logger.info("End of tweet stream...")
-                    return tweet_count, last_tweet_time, self.__twitter_tweet_persist_file_path__
+                    return tweet_count, last_tweet_id, last_tweet_time, self.__twitter_tweet_persist_file_path__
 
         logger.info("Total {0} tweets extracted.".format(tweet_count))
-        return tweet_count, last_tweet_time, self.__twitter_tweet_persist_file_path__
+        return tweet_count, last_tweet_id, last_tweet_time, self.__twitter_tweet_persist_file_path__
 
     def extract_tweets_data(self, tweet_list):
         if tweet_list is not None:

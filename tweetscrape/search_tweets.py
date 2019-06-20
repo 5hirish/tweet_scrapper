@@ -36,6 +36,7 @@ class TweetScrapperSearch(TweetScrapper):
     __twitter_search_params__ = None
 
     twitter_from_date = "2006-03-21"
+    previous_last_tweet_id = ""
 
     def __init__(self,
                  search_all="", search_exact="", search_any="", search_excludes="", search_hashtags="",
@@ -94,9 +95,9 @@ class TweetScrapperSearch(TweetScrapper):
         self.__twitter_request_params__['q'] = search_query
 
         output_file_name = '/' + search_query + '_search'
-        tweet_count, last_tweet_time, dump_path = self.execute_twitter_request(search_term=search_query,
-                                                                               log_output=save_output,
-                                                                               output_file=output_file_name)
+        tweet_count, last_tweet_id, last_tweet_time, dump_path = self.execute_twitter_request(search_term=search_query,
+                                                                                              log_output=save_output,
+                                                                                              output_file=output_file_name)
 
         self.__twitter_request_url__ = self.__twitter_search_url__
 
@@ -104,12 +105,24 @@ class TweetScrapperSearch(TweetScrapper):
         if last_tweet_time != "" and (self.pages == -1 or self.pages - 1 * 20 > tweet_count):
             logger.info("Recursive search. Profile Limit exhausted: Till:" + last_tweet_time)
 
+            if self.previous_last_tweet_id != "" and self.previous_last_tweet_id == last_tweet_id:
+                logger.info("Circular search detected. Taking measures...")
+                # Try changing user-agent (Best case)
+                # Try adding a request back-off (Works in front-end)
+                # Try stepping the date (Worst case)
+
+                # Finally give up
+                logger.warning("Tried all measures giving up!")
+                return tweet_count, last_tweet_id, last_tweet_time, dump_path
+            else:
+                self.previous_last_tweet_id = last_tweet_id
+
             self.time_query = self.update_time_interval(search_since_date=self.twitter_from_date,
                                                         search_till_date=last_tweet_time)
-            append_tweet_count, last_tweet_time, dump_path = self.get_search_tweets(save_output)
+            append_tweet_count, last_tweet_id, last_tweet_time, dump_path = self.get_search_tweets(save_output)
             tweet_count += append_tweet_count
 
-        return tweet_count, last_tweet_time, dump_path
+        return tweet_count, last_tweet_id, last_tweet_time, dump_path
 
     def update_time_interval(self, search_since_date, search_till_date):
 
@@ -242,7 +255,7 @@ if __name__ == '__main__':
     #                          pages=1)
     #
     # ts = TweetScrapperSearch(search_hashtags="raptors", search_near_place="toronto", pages=1)
-    l_tweet_count, l_last_time, l_dump_path = ts.get_search_tweets(True)
+    l_tweet_count, l_tweet_id, l_last_time, l_dump_path = ts.get_search_tweets(True)
     # for l_tweet in l_extracted_tweets:
     #     print(str(l_tweet))
     print(l_tweet_count)
