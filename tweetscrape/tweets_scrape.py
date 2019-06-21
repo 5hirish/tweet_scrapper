@@ -317,6 +317,7 @@ class TweetScrapper:
                 last_tweet_timestamp = ""
                 logger.warning("Unable to get last tweet timestamp")
 
+            logger.debug("Batch written to file:{0}".format(self.__twitter_tweet_persist_file_path__))
             return last_tweet_id, last_tweet_timestamp, tweet_count
 
 

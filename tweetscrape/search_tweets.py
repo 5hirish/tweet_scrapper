@@ -1,4 +1,6 @@
 import logging
+import time
+import random
 from datetime import datetime
 
 from tweetscrape.tweets_scrape import TweetScrapper
@@ -123,10 +125,11 @@ class TweetScrapperSearch(TweetScrapper):
                 # Try changing user-agent (Best case)
                 self.switch_user_agent()
                 # Try adding a request delay (Works in front-end)
+                # time.sleep(random.choice(self.__twitter_request_delays__))
                 # Try stepping the date (Worst case)
 
                 if self.retry_count > self.max_retry_count:
-                    # Finally give up
+                    # Finally give up ...
                     logger.warning("Tried all measures giving up!")
                     return tweet_count, last_tweet_id, last_tweet_time, dump_path
 
@@ -252,7 +255,7 @@ if __name__ == '__main__':
     ts = TweetScrapperSearch(search_from_accounts="BarackObama",
                              tweet_dump_path='twitter.csv',
                              pages=-1,
-                             search_till_date='2012-11-07',
+                             search_till_date='2012-10-01',
                              tweet_dump_format='csv')
 
     # ts = TweetScrapperSearch(search_hashtags="FakeNews Trump", pages=1)
