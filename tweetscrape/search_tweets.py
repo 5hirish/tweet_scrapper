@@ -42,7 +42,8 @@ class TweetScrapperSearch(TweetScrapper):
                  search_near_place="", search_near_distance="",
                  search_till_date="", search_since_date="",
                  pages=2, language='',
-                 tweet_dump_path="", tweet_dump_format=""):
+                 tweet_dump_path="", tweet_dump_format="",
+                 request_proxies=None):
 
         self.search_type = "typd"
         self.pages = pages
@@ -79,7 +80,7 @@ class TweetScrapperSearch(TweetScrapper):
             'include_new_items_bar': 'true'
         }
 
-        super().__init__(None, None, None,
+        super().__init__(None, None, None, request_proxies,
                          pages, tweet_dump_path, tweet_dump_format)
 
     def get_search_tweets(self, save_output=False):
@@ -121,7 +122,7 @@ class TweetScrapperSearch(TweetScrapper):
 
                 # Try changing user-agent (Best case)
                 self.switch_user_agent()
-                # Try adding a request back-off (Works in front-end)
+                # Try adding a request delay (Works in front-end)
                 # Try stepping the date (Worst case)
 
                 if self.retry_count > self.max_retry_count:

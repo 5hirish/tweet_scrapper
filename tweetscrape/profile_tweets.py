@@ -23,7 +23,7 @@ class TweetScrapperProfile(TweetScrapper):
     __twitter_profile_header__ = None
     __twitter_profile_params__ = None
 
-    def __init__(self, username, pages=2, *args):
+    def __init__(self, username, pages=2, request_proxies=None, *args):
         self.username = username
         self.pages = pages
 
@@ -43,6 +43,7 @@ class TweetScrapperProfile(TweetScrapper):
         super().__init__(self.__twitter_profile_url__,
                          self.__twitter_profile_header__,
                          self.__twitter_profile_params__,
+                         request_proxies,
                          pages, *args)
 
     def get_profile_tweets(self, save_output=False):

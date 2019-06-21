@@ -5,6 +5,7 @@ import logging
 import csv
 import json
 import random
+import time
 from lxml import etree
 from urllib import parse
 from datetime import datetime
@@ -61,19 +62,23 @@ class TweetScrapper:
         'x-twitter-polling': 'true',
     }
 
+    __twitter_request_delays__ = [2, 3, 4, 5, 6, 7]
+
     __twitter_search_url__ = 'https://twitter.com/i/search/timeline'
 
     twitter_date_format = '%Y-%m-%d'
     current_cursor = None
     scrape_pages = 2
 
-    def __init__(self, twitter_request_url, twitter_request_header, twitter_request_params=None, scrape_pages=2,
+    def __init__(self, twitter_request_url, twitter_request_header,
+                 twitter_request_params=None, twitter_request_proxies=None, scrape_pages=2,
                  twitter_file_path=None, twitter_file_format='json'):
 
         self.__twitter_request_url__ = twitter_request_url
         if twitter_request_header is not None:
             self.__twitter_request_header__ = twitter_request_header
         self.__twitter_request_params__ = twitter_request_params
+        self.__twitter_request_proxies__ = twitter_request_proxies
         self.scrape_pages = scrape_pages
         self.__twitter_tweet_persist_file_path__ = twitter_file_path
         self.__twitter_tweet_persist_file_format__ = twitter_file_format
@@ -103,7 +108,8 @@ class TweetScrapper:
     def clear_old_cursor(self):
         self.current_cursor = None
 
-    def execute_twitter_request(self, username=None, search_term=None, log_output=False, output_file=None):
+    def execute_twitter_request(self, username=None, search_term=None, log_output=False, output_file=None,
+                                add_delay=False, delay_tweet_count=100):
         total_pages = self.scrape_pages
         tweet_count = 0
         last_tweet_id, last_tweet_time = '', ''
@@ -125,7 +131,8 @@ class TweetScrapper:
 
             response = requests.get(self.__twitter_request_url__,
                                     headers=self.__twitter_request_header__,
-                                    params=twitter_request_params_encoded)
+                                    params=twitter_request_params_encoded,
+                                    proxies=self.__twitter_request_proxies__)
 
             if response.ok and response.status_code == 200:
                 if search_term is not None:
@@ -195,6 +202,10 @@ class TweetScrapper:
                     # self.__twitter_request_params__['min_position'] = last_tweet_id
                     self.__twitter_request_params__['reset_error_state'] = 'false'
                     self.__twitter_request_params__['max_position'] = self.current_cursor
+
+                    if add_delay and tweet_count % delay_tweet_count == 0:
+                        delay = random.choice(self.__twitter_request_delays__)
+                        time.sleep(delay)
                 else:
                     logger.info("End of tweet stream...")
                     return tweet_count, last_tweet_id, last_tweet_time, self.__twitter_tweet_persist_file_path__
