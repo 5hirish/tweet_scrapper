@@ -31,10 +31,6 @@ class TweetScrapperSearch(TweetScrapper):
     search_type = None
     pages = None
 
-    __twitter_search_url__ = None
-    __twitter_search_header__ = None
-    __twitter_search_params__ = None
-
     twitter_from_date = "2006-03-21"
     previous_last_tweet_id = ""
     max_retry_count = 6
@@ -66,7 +62,6 @@ class TweetScrapperSearch(TweetScrapper):
         #     self.search_type = "typd"
 
         self.__twitter_search_init_url__ = 'https://twitter.com/search'
-        self.__twitter_search_url__ = 'https://twitter.com/i/search/timeline'
 
         self.__twitter_search_init_params__ = {
             'f': 'tweets',
@@ -114,11 +109,12 @@ class TweetScrapperSearch(TweetScrapper):
             self.__twitter_search_params_recursive__['q'] = search_query
             self.__twitter_search_init_params__['q'] = search_query
 
-            self.update_request_url(self.__twitter_search_url__)
+            # self.update_request_url(self.__twitter_search_url__)
             self.update_request_params(
                 twitter_request_url=self.__twitter_search_init_url__,
                 twitter_request_params=self.__twitter_search_init_params__,
                 update_refer=True)
+            self.clear_old_cursor()
 
             if self.previous_last_tweet_id != "" and self.previous_last_tweet_id == last_tweet_id:
                 logger.info("Circular search detected. Taking measures...")
@@ -217,7 +213,6 @@ class TweetScrapperSearch(TweetScrapper):
 
         search_query = ' '.join(search_query_filters)
 
-
         return search_query
 
 
@@ -256,6 +251,7 @@ if __name__ == '__main__':
     ts = TweetScrapperSearch(search_from_accounts="BarackObama",
                              tweet_dump_path='twitter.csv',
                              pages=-1,
+                             search_till_date='2012-11-07',
                              tweet_dump_format='csv')
 
     # ts = TweetScrapperSearch(search_hashtags="FakeNews Trump", pages=1)

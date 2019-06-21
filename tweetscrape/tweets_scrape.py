@@ -61,6 +61,8 @@ class TweetScrapper:
         'x-twitter-polling': 'true',
     }
 
+    __twitter_search_url__ = 'https://twitter.com/i/search/timeline'
+
     twitter_date_format = '%Y-%m-%d'
     current_cursor = None
     scrape_pages = 2
@@ -98,6 +100,9 @@ class TweetScrapper:
         twitter_request_refer = twitter_request_url + '?' + parse.urlencode(twitter_request_params, quote_via=parse.quote)
         self.__twitter_request_header__['referer'] = twitter_request_refer
 
+    def clear_old_cursor(self):
+        self.current_cursor = None
+
     def execute_twitter_request(self, username=None, search_term=None, log_output=False, output_file=None):
         total_pages = self.scrape_pages
         tweet_count = 0
@@ -123,6 +128,8 @@ class TweetScrapper:
                                     params=twitter_request_params_encoded)
 
             if response.ok and response.status_code == 200:
+                if search_term is not None:
+                    self.__twitter_request_url__ = self.__twitter_search_url__
 
                 logger.debug("Page {0} request: {1}".format(abs(self.scrape_pages), response.status_code))
 
@@ -166,9 +173,9 @@ class TweetScrapper:
                     tweets_generator = self.extract_tweets_data(tweet_list)
                     tweet_id, tweet_time, current_tweet_count = self.persist_tweets(tweets_generator)
 
-                    if tweet_time != "":
+                    if tweet_time is not None and tweet_time != "":
                         last_tweet_time = tweet_time
-                    if tweet_id != "":
+                    if tweet_id is not None and tweet_id != "":
                         last_tweet_id = tweet_id
                     tweet_count += current_tweet_count
 
@@ -295,7 +302,8 @@ class TweetScrapper:
             try:
                 last_datetime = datetime.fromtimestamp(int(last_tweet_timestamp) // 1000)
                 last_tweet_timestamp = datetime.strftime(last_datetime, self.twitter_date_format)
-            except ValueError as e:
+            except ValueError:
+                last_tweet_timestamp = ""
                 logger.warning("Unable to get last tweet timestamp")
 
             return last_tweet_id, last_tweet_timestamp, tweet_count
