@@ -15,6 +15,11 @@ from tweetscrape.model.tweet_model import TweetInfo
 logger = logging.getLogger(__name__)
 
 
+"""
+User-Agents: https://udger.com/resources/ua-list
+"""
+
+
 class TweetScrapper:
     __twitter_request_url__ = None
     __twitter_request_header__ = None
@@ -64,7 +69,8 @@ class TweetScrapper:
                  twitter_file_path=None, twitter_file_format='json'):
 
         self.__twitter_request_url__ = twitter_request_url
-        self.__twitter_request_header__.update(twitter_request_header)
+        if twitter_request_header is not None:
+            self.__twitter_request_header__ = twitter_request_header
         self.__twitter_request_params__ = twitter_request_params
         self.scrape_pages = scrape_pages
         self.__twitter_tweet_persist_file_path__ = twitter_file_path
@@ -75,7 +81,22 @@ class TweetScrapper:
         self.html_parser = etree.HTMLParser(remove_blank_text=True, remove_comments=True)
 
     def switch_user_agent(self):
+        logger.info("Switching user-agent")
         self.__twitter_request_header__['user-agent'] = random.choice(self.__twitter_user_agent__)
+
+    def update_request_params(self, twitter_request_url, twitter_request_params, update_refer=False):
+        if twitter_request_params is not None:
+            self.__twitter_request_params__ = twitter_request_params
+            if update_refer and twitter_request_url != "":
+                self.update_request_refer(twitter_request_url, self.__twitter_request_params__)
+
+    def update_request_url(self, twitter_request_url):
+        if twitter_request_url is not None:
+            self.__twitter_request_url__ = twitter_request_url
+
+    def update_request_refer(self, twitter_request_url, twitter_request_params):
+        twitter_request_refer = twitter_request_url + '?' + parse.urlencode(twitter_request_params, quote_via=parse.quote)
+        self.__twitter_request_header__['referer'] = twitter_request_refer
 
     def execute_twitter_request(self, username=None, search_term=None, log_output=False, output_file=None):
         total_pages = self.scrape_pages
