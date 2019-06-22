@@ -60,7 +60,7 @@ Python Package dependencies listed in [requirements.txt](requirements.txt)
 * Extract user tweets with all meta-data
 * Extracts external links, hashtags and mentions from a tweet
 * Extracts reply, favorite and retweet counts of a tweet
-* Exports data to file in CSV or JSON
+* Exports data to file in CSV or JSON with UTF-8 encoding
 * Scraps tweets in a recursive and greedy approach
 * Supports Proxy requests, request delays
 

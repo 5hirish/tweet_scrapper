@@ -8,7 +8,7 @@ from tweetscrape.search_tweets import TweetScrapperSearch
 
 @pytest.mark.parametrize("test_term,test_page", [
         ("New York", 2),
-        ("White House", 6),
+        ("White House", 3),
         ("Avengers Infinity War", 5),
         # ("Machine Learning", 10),
         # ("The Rock", 15)
