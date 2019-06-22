@@ -1,6 +1,4 @@
 import logging
-import time
-import random
 from datetime import datetime
 
 from tweetscrape.tweets_scrape import TweetScrapper

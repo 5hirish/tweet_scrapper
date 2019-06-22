@@ -9,7 +9,10 @@ import time
 from lxml import etree
 from urllib import parse
 from datetime import datetime
-from json.decoder import JSONDecodeError
+try:
+    from json.decoder import JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
 
 from tweetscrape.model.tweet_model import TweetInfo
 

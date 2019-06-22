@@ -64,11 +64,6 @@ Python Package dependencies listed in [requirements.txt](requirements.txt)
 * Scraps tweets in a recursive and greedy approach
 * Supports Proxy requests, request delays
 
-### Cool stuff using Tweetscrape
-I have added a few examples (Jupyter Notebooks) using this library to do some [cool stuff](tweetscrape/coolstuff).
-- Tweet generator using Markov Chain
-- Gensim Topic Modeling using Latent Dirichlet Allocation model
-
 ### TODO
 
 - [x] Extract tweets from a twitter user's profile
