@@ -98,7 +98,7 @@ def parse_args(args):
         type=str,
         metavar="")
     parser.add_argument(
-        '--until',
+        '--since',
         dest="search_since_date",
         help="Search tweets since this date: YYYY-MM-DD",
         type=str,
@@ -171,7 +171,7 @@ def main(args):
     setup_logging(args.loglevel)
     _logger.info("Scrapping tweets")
 
-    if args.username is not None and args.username.startswith("@"):
+    if args.username is not None:
 
         ts = TweetScrapperProfile(args.username, args.pages,
                                   args.tweet_dump_path, args.tweet_dump_format,
