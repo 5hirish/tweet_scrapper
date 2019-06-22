@@ -13,10 +13,14 @@ Twitter's API is annoying to work with, and has lots of limitations — luckily 
 
 You can use this library to get the text of any user's Tweets trivially. Follow the creator's blog at [shirishkadam.com](https://shirishkadam.com) for updates on progress.
 
+## Installation
+```bash
+$ pip install tweetscrape
+```
+
 ## Getting Started
 
 ```bash
-$ pip install tweetscrape
 $ python -m tweetscrape.twitter_scrape -u "5hirish"  -p 3 -d "twitter.csv" -f "csv"
 $ python -m tweetscrape.twitter_scrape --hashtag "#Python" -p 3 -d "twitter.csv" -f "csv"
 $ python -m tweetscrape.twitter_scrape --all "Avengers" --mention "@Marvel" -p 1 -d "twitter.csv" -f "csv"
