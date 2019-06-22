@@ -113,20 +113,22 @@ class TweetScrapper:
 
     def execute_twitter_request(self, username=None, search_term=None, log_output=False, output_file=None,
                                 add_delay=False, delay_tweet_count=100):
-        total_pages = self.scrape_pages
         tweet_count = 0
         last_tweet_id, last_tweet_time = '', ''
 
-        if self.scrape_pages < 0:
+        if self.scrape_pages is None or self.scrape_pages < 0:
             is_stream = True
+            self.scrape_pages = -1
         else:
             is_stream = False
+
+        total_pages = self.scrape_pages
 
         if self.current_cursor is not None:
             self.__twitter_request_params__['reset_error_state'] = 'false'
             self.__twitter_request_params__['max_position'] = self.current_cursor
 
-        while self.scrape_pages > 0 or is_stream:
+        while is_stream or self.scrape_pages > 0:
             current_tweet_count = 0
             min_position = None
 
