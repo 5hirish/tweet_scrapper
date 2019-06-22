@@ -173,28 +173,29 @@ def main(args):
 
     if args.username is not None:
 
-        ts = TweetScrapperProfile(args.username, args.pages,
-                                  args.tweet_dump_path, args.tweet_dump_format,
-                                  args.request_proxies)
+        ts = TweetScrapperProfile(username=args.username, pages=args.pages,
+                                  tweet_dump_path=args.tweet_dump_path, tweet_dump_format=args.tweet_dump_format,
+                                  request_proxies=args.request_proxies)
 
         l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = ts.get_profile_tweets(False)
-        return "Extracted {0} tweets till {1} at {2}".format(l_tweet_count, l_tweet_time, l_dump_path)
-
-    elif args.search_term is not None:
-
-        ts = TweetScrapperSearch(args.search_all, args.search_exact, args.search_any,
-                                 args.search_excludes, args.search_hashtags,
-                                 args.search_from_accounts, args.search_to_accounts, args.search_mentions,
-                                 args.search_near_place, args.search_till_date, args.search_since_date,
-                                 args.pages, args.language, args.tweet_dump_path, args.tweet_dump_format,
-                                 args.request_proxies)
-
-        l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = ts.get_search_tweets(False)
+        print("Extracted {0} tweets till {1} at {2}".format(l_tweet_count, l_tweet_time, l_dump_path))
         return "Extracted {0} tweets till {1} at {2}".format(l_tweet_count, l_tweet_time, l_dump_path)
 
     else:
-        raise ValueError("No matching argument. Provide a twitter username eg. -u @5hirish or"
-                         " a twitter hashtag eg. --all Shirish Kadam or any search term.")
+
+        ts = TweetScrapperSearch(search_all=args.search_all, search_exact=args.search_exact, search_any=args.search_any,
+                                 search_excludes=args.search_excludes, search_hashtags=args.search_hashtags,
+                                 search_from_accounts=args.search_from_accounts,
+                                 search_to_accounts=args.search_to_accounts, search_mentions=args.search_mentions,
+                                 search_near_place=args.search_near_place,
+                                 search_till_date=args.search_till_date, search_since_date=args.search_since_date,
+                                 pages=args.pages, language=args.language,
+                                 tweet_dump_path=args.tweet_dump_path, tweet_dump_format=args.tweet_dump_format,
+                                 request_proxies=args.request_proxies)
+
+        l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = ts.get_search_tweets(False)
+        print("Extracted {0} tweets till {1} at {2}".format(l_tweet_count, l_tweet_time, l_dump_path))
+        return "Extracted {0} tweets till {1} at {2}".format(l_tweet_count, l_tweet_time, l_dump_path)
 
 
 def run():

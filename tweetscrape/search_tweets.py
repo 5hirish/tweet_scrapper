@@ -159,7 +159,9 @@ class TweetScrapperSearch(TweetScrapper):
                     search_since_date = "since:" + self.twitter_from_date
             else:
                 search_since_date = "since:" + self.twitter_from_date
-        if search_since_date != "" and search_till_date != "":
+        logger.info(search_since_date)
+        if (search_since_date is not None and search_since_date != "") and \
+                (search_till_date is not None and search_till_date != ""):
             return search_since_date + " " + search_till_date
         return ""
 
