@@ -38,9 +38,69 @@ def parse_args(args):
         type=str,
         metavar="")
     parser.add_argument(
-        '-s',
-        dest="search_term",
-        help="Search term or titter hashtag eg. #Python",
+        '--all',
+        dest="search_all",
+        help="Search all of these words",
+        type=str,
+        metavar="")
+    parser.add_argument(
+        '--exact',
+        dest="search_exact",
+        help="Search this exact phrase",
+        type=str,
+        metavar="")
+    parser.add_argument(
+        '--any',
+        dest="search_any",
+        help="Search any of these words",
+        type=str,
+        metavar="")
+    parser.add_argument(
+        '--exclude',
+        dest="search_excludes",
+        help="Search excluding these words",
+        type=str,
+        metavar="")
+    parser.add_argument(
+        '--hashtag',
+        dest="search_hashtags",
+        help="Search these hashtags",
+        type=str,
+        metavar="")
+    parser.add_argument(
+        '--from',
+        dest="search_from_accounts",
+        help="Search tweets from these accounts",
+        type=str,
+        metavar="")
+    parser.add_argument(
+        '--to',
+        dest="search_to_accounts",
+        help="Search tweets to these accounts",
+        type=str,
+        metavar="")
+    parser.add_argument(
+        '--mention',
+        dest="search_mentions",
+        help="Search tweets mentioning these accounts",
+        type=str,
+        metavar="")
+    parser.add_argument(
+        '--near',
+        dest="search_near_place",
+        help="Search tweets near this place",
+        type=str,
+        metavar="")
+    parser.add_argument(
+        '--until',
+        dest="search_till_date",
+        help="Search tweets until this date: YYYY-MM-DD",
+        type=str,
+        metavar="")
+    parser.add_argument(
+        '--until',
+        dest="search_since_date",
+        help="Search tweets since this date: YYYY-MM-DD",
         type=str,
         metavar="")
     parser.add_argument(
@@ -48,7 +108,31 @@ def parse_args(args):
         dest="pages",
         help="Number of pages to fetch, maximum is 25",
         type=int,
-        metavar="")    
+        metavar="")
+    parser.add_argument(
+        '-l',
+        dest="language",
+        help="Search tweets in language from language codes",
+        type=int,
+        metavar="")
+    parser.add_argument(
+        '-d',
+        dest="tweet_dump_path",
+        help="Path of the file to export to",
+        type=str,
+        metavar="")
+    parser.add_argument(
+        '-f',
+        dest="tweet_dump_format",
+        help="File format to export to: json or csv",
+        type=str,
+        metavar="")
+    parser.add_argument(
+        '--proxy',
+        dest="request_proxies",
+        help="The proxies used for scraping. Use serialized dictionary.",
+        type=str,
+        metavar="")
     parser.add_argument(
         '-v',
         '--verbose',
@@ -85,31 +169,32 @@ def main(args):
     """
     args = parse_args(args)
     setup_logging(args.loglevel)
-    _logger.info("Scrapping tweets for {0}".format(args.username))
+    _logger.info("Scrapping tweets")
+
     if args.username is not None and args.username.startswith("@"):
-        if args.pages is not None:
-            ts = TweetScrapperProfile(args.username, args.pages)
-        else:
-            ts = TweetScrapperProfile(args.username)
-        tweets = ts.get_profile_tweets(False)
-        for tweet in tweets:
-            print(str(tweet))
-        return tweets
+
+        ts = TweetScrapperProfile(args.username, args.pages,
+                                  args.tweet_dump_path, args.tweet_dump_format,
+                                  args.request_proxies)
+
+        l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = ts.get_profile_tweets(False)
+        return "Extracted {0} tweets till {1} at {2}".format(l_tweet_count, l_tweet_time, l_dump_path)
 
     elif args.search_term is not None:
-        if args.pages is not None:
-            ts = TweetScrapperSearch(args.search_term, args.pages)
-        else:
-            ts = TweetScrapperSearch(args.search_term)
-        tweets = ts.get_search_tweets(False)
-        for tweet in tweets:
-            print(str(tweet))
-        return tweets
+
+        ts = TweetScrapperSearch(args.search_all, args.search_exact, args.search_any,
+                                 args.search_excludes, args.search_hashtags,
+                                 args.search_from_accounts, args.search_to_accounts, args.search_mentions,
+                                 args.search_near_place, args.search_till_date, args.search_since_date,
+                                 args.pages, args.language, args.tweet_dump_path, args.tweet_dump_format,
+                                 args.request_proxies)
+
+        l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = ts.get_search_tweets(False)
+        return "Extracted {0} tweets till {1} at {2}".format(l_tweet_count, l_tweet_time, l_dump_path)
 
     else:
         raise ValueError("No matching argument. Provide a twitter username eg. -u @5hirish or"
-                         " a twitter hashtag eg. -s #Python or any search term.")
-
+                         " a twitter hashtag eg. --all Shirish Kadam or any search term.")
 
 def run():
     """Entry point for console_scripts
