@@ -16,7 +16,7 @@ You can use this library to get the text of any user's Tweets trivially. Follow 
 ## Installation
 ```bash
 $ pip install tweetscrape
-$ python -m tweetscrape.twitter_scrape -h
+$ python -m tweetscrape.twitter_scrape --help
 ```
 
 ## Getting Started
