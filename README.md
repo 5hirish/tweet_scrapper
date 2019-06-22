@@ -16,6 +16,7 @@ You can use this library to get the text of any user's Tweets trivially. Follow 
 ## Installation
 ```bash
 $ pip install tweetscrape
+$ python -m tweetscrape.twitter_scrape -h
 ```
 
 ## Getting Started
@@ -37,7 +38,7 @@ tweet_scrapper = TweetScrapperProfile("5hirish", 2, 'twitter.csv', 'csv')
 tweet_count, tweet_id, tweet_time, dump_path = tweet_scrapper.get_profile_tweets()
 print("Extracted {0} tweets till {1} at {2}".format(tweet_count, tweet_time, dump_path))
 ```
-Read more on `tweetscrape` usage [here](USAGE.md).
+#### Read more on `tweetscrape` usage here:[USAGE.md](USAGE.md)
 ```csv
 id,type,time,author,author_id,re_tweeter,associated_tweet,text,links,hashtags,mentions,reply_count,favorite_count,retweet_count
 993872079274508289,tweet,1525792543000,5hirish,428808036,,993872079274508289,"Built @twitter #scrapper inspired by @kennethreitz similar project. Does a bunch of other cool stuff like extracting user tweets with all meta-data, hastags, images, likes, etc. extracting tweets based on keyword or hastag search #python @Github https://github.com/5hirish/tweet_scrapper …pic.twitter.com/bXdnrWXNwr","['https://t.co/ID5hJ6InIu', 'https://t.co/bXdnrWXNwr']","['#scrapper', '#python']","['@Twitter', '@kennethreitz', '@github']",1,14,7
