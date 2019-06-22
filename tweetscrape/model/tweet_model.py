@@ -18,6 +18,9 @@ class TweetInfo:
     __tweet_favorite_count__ = 0
     __tweet_retweet_count__ = 0
 
+    tweet_fields = ["id", "type", "time", "author", "author_id", "re_tweeter", "associated_tweet",
+                    "text", "links", "hashtags", "mentions", "reply_count", "favorite_count", "retweet_count"]
+
     def __init__(self, tweet_id, tweet_type):
         self.__tweet_id__ = tweet_id
         self.__tweet_type__ = tweet_type
@@ -109,6 +112,24 @@ class TweetInfo:
     def get_tweet_retweet_count(self):
         return self.__tweet_retweet_count__
 
+    def get_json(self):
+        return {
+            "id": self.get_tweet_id(),
+            "type": self.get_tweet_type(),
+            "time": self.get_tweet_time_ms(),
+            "author": self.get_tweet_author(),
+            "author_id": self.get_tweet_author_id(),
+            "re_tweeter": self.get_retweeter(),
+            "associated_tweet": self.get_conversation_id(),
+            "text": self.get_tweet_text(),
+            "links": self.get_tweet_links(),
+            "hashtags": self.get_tweet_hashtags(),
+            "mentions": self.get_tweet_mentions(),
+            "reply_count": self.get_tweet_replies_count(),
+            "favorite_count": self.get_tweet_favorite_count(),
+            "retweet_count": self.get_tweet_retweet_count()
+        }
+
     def __str__(self):
         return "Id: " + self.get_tweet_id() + "\tType: " + self.get_tweet_type() + "\tTime: " + self.get_tweet_time_ms() + \
                "\nAuthor: " + self.get_tweet_author() + "\tAuthorId: " + self.get_tweet_author_id() + \
@@ -116,7 +137,7 @@ class TweetInfo:
                "\nAssociated Tweet: " + str(self.get_conversation_id()) + \
                "\nText: " + self.get_tweet_text() + \
                "\nLinks: " + str(self.get_tweet_links()) + \
-               "\nHastags: " + str(self.get_tweet_hashtags()) + \
+               "\nHashtags: " + str(self.get_tweet_hashtags()) + \
                "\nMentions: " + str(self.get_tweet_mentions()) + \
                "\nReplies: " + self.get_tweet_replies_count() + \
                "\tFavorites: " + self.get_tweet_favorite_count() + \
