@@ -196,6 +196,7 @@ def main(args):
         raise ValueError("No matching argument. Provide a twitter username eg. -u @5hirish or"
                          " a twitter hashtag eg. --all Shirish Kadam or any search term.")
 
+
 def run():
     """Entry point for console_scripts
     """

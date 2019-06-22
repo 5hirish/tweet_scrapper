@@ -55,7 +55,7 @@ class TweetScrapperProfile(TweetScrapper):
                                                                                               log_output=save_output,
                                                                                               output_file=output_file_name)
 
-        if self.pages == -1 or self.pages - 1 * 20 < tweet_count:
+        if self.pages == -1 or self.pages - 1 * 20 > tweet_count:
             logger.info("Switching to search mode. Profile Limit exhausted")
             ts = TweetScrapperSearch(search_from_accounts=self.username,
                                      search_since_date=TweetScrapperSearch.twitter_from_date,
@@ -68,7 +68,7 @@ class TweetScrapperProfile(TweetScrapper):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    l_ts = TweetScrapperProfile("BarackObama", -1, 'twitter.csv', 'csv')
+    l_ts = TweetScrapperProfile("BarackObama", 2, 'twitter.csv', 'csv')
     l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = l_ts.get_profile_tweets(True)
     # for l_tweet in l_extracted_tweets:
     #     print(str(l_tweet))
