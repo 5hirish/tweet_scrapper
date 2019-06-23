@@ -18,10 +18,11 @@ URL = 'https://github.com/5hirish/tweet_scrapper'
 EMAIL = 'shirishkadam35@gmail.com'
 AUTHOR = 'Shirish Kadam'
 REQUIRES_PYTHON = '>=3.5.*'
-VERSION = '0.5.0'
+VERSION = '0.5.1'
 LICENSE = 'gpl3'
 
 PACKAGES = ['tweetscrape']
+EXCLUDE = ["tests", "*.tests", "*.tests.*", "tests.*"]
 
 CLASSIFIERS = [
         # Trove classifiers
@@ -123,9 +124,9 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    # packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
+    packages=find_packages(exclude=EXCLUDE),
     # If your package is a single module, use this instead of 'packages':
-    py_modules=PACKAGES,
+    # py_modules=PACKAGES,
 
     # entry_points={
     #     'console_scripts': ['mycli=mymodule:cli'],

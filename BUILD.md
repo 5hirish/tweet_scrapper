@@ -6,8 +6,8 @@
 4) Upload to PyPi via Twine
 
 ```bash
-$ python -m pip install --upgrade pip setuptools wheel
-$ python setup.py upload
+$ python setup.py sdist bdist_wheel
+$ twine upload dist/*
 $ pip install tweetscrape --upgrade
 ```
 
