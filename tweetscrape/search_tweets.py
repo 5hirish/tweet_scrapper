@@ -47,6 +47,7 @@ class TweetScrapperSearch(TweetScrapper):
 
         self.search_type = "typd"
         self.pages = pages
+        self.search_since_date = search_since_date
 
         self.intermediate_query = self.construct_query(search_all, search_exact, search_any,
                                                        search_excludes, search_hashtags,
@@ -136,7 +137,12 @@ class TweetScrapperSearch(TweetScrapper):
             else:
                 self.previous_last_tweet_id = last_tweet_id
 
-            self.time_query = self.update_time_interval(search_since_date=self.twitter_from_date,
+            if self.search_since_date is None or self.search_since_date == '':
+                search_since = self.twitter_from_date
+            else:
+                search_since = self.search_since_date
+
+            self.time_query = self.update_time_interval(search_since_date=search_since,
                                                         search_till_date=last_tweet_time)
             append_tweet_count, last_tweet_id, last_tweet_time, dump_path = self.get_search_tweets(save_output)
             tweet_count += append_tweet_count
@@ -252,10 +258,11 @@ if __name__ == '__main__':
     #                          pages=-1,
     #                          tweet_dump_format='csv')
 
-    ts = TweetScrapperSearch(search_from_accounts="BarackObama",
+    ts = TweetScrapperSearch(search_all="2020",
                              tweet_dump_path='twitter.csv',
                              pages=-1,
-                             search_till_date='2012-10-01',
+                             search_since_date='2019-06-01',
+                             search_till_date='2019-06-23',
                              tweet_dump_format='csv')
 
     # ts = TweetScrapperSearch(search_hashtags="FakeNews Trump", pages=1)
