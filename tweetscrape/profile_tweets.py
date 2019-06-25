@@ -58,7 +58,7 @@ class TweetScrapperProfile(TweetScrapper):
                                              log_output=save_output,
                                              output_file=output_file_name)
 
-            if self.pages == -1 or self.pages - 1 * 20 > tweet_count:
+            if self.pages == -1 or (self.pages - 1 * 20) > tweet_count:
                 logger.info("Switching to search mode. Profile Limit exhausted")
                 ts = TweetScrapperSearch(search_from_accounts=self.username,
                                          search_since_date=TweetScrapperSearch.twitter_from_date,
