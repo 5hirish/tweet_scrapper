@@ -75,7 +75,7 @@ class TweetScrapper:
 
     def __init__(self, twitter_request_url, twitter_request_header,
                  twitter_request_params=None, twitter_request_proxies=None, scrape_pages=2,
-                 twitter_file_path=None, twitter_file_format='json'):
+                 twitter_file_path=None, twitter_file_format='csv'):
 
         self.__twitter_request_url__ = twitter_request_url
         if twitter_request_header is not None:
@@ -281,7 +281,7 @@ class TweetScrapper:
 
     def persist_tweets(self, tweets_generator, dump_mode='a'):
         if self.__twitter_tweet_persist_file_path__ is None or self.__twitter_tweet_persist_file_path__ == "":
-            self.__twitter_tweet_persist_file_format__ = 'json'
+            self.__twitter_tweet_persist_file_format__ = 'csv'
             self.__twitter_tweet_persist_file_path__ = os.getcwd() + 'tweets_dump.' + \
                                                        self.__twitter_tweet_persist_file_format__
 
@@ -292,7 +292,7 @@ class TweetScrapper:
 
             tweet_csv_writer = csv.DictWriter(tweet_fp, fieldnames=TweetInfo.tweet_fields)
 
-            if self.__twitter_tweet_persist_file_format__ != 'csv' and tweet_fp.tell() != 0:
+            if self.__twitter_tweet_persist_file_format__.lower() != 'csv' and tweet_fp.tell() != 0:
                 tweet_fp.seek(tweet_fp.tell() - 1, os.SEEK_SET)
                 tweet_fp.truncate()
                 tweet_fp.write(",")
@@ -301,7 +301,7 @@ class TweetScrapper:
                 last_tweet_id = tweet.get_tweet_id()
                 last_tweet_timestamp = tweet.get_tweet_time_ms()
                 tweet_count += 1
-                if self.__twitter_tweet_persist_file_format__ == 'csv':
+                if self.__twitter_tweet_persist_file_format__.lower() == 'csv':
                     if tweet_fp.tell() == 0:
                         tweet_csv_writer.writeheader()
                     tweet_csv_writer.writerow(tweet.get_json())
@@ -310,7 +310,7 @@ class TweetScrapper:
                         tweet_fp.write("[")
                     json.dump(tweet.get_json(), tweet_fp)
                     tweet_fp.write(",")
-            if self.__twitter_tweet_persist_file_format__ != 'csv':
+            if self.__twitter_tweet_persist_file_format__.lower() != 'csv':
                 tweet_fp.seek(tweet_fp.tell() - 1, os.SEEK_SET)
                 tweet_fp.truncate()
                 tweet_fp.write("]")

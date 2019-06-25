@@ -16,7 +16,8 @@ print("Extracted {0} tweets till {1} at {2}".format(tweet_count, tweet_time, dum
 ```
 
 The `TweetScrapperProfile` class scrapes the tweets using Twitter frontend APIs with XPATH queries. 
-It requires four parameters, the Twitter **username**, the **number of pages** to scrape, the **file path** to dump 
+It requires four parameters, the Twitter **username**, the **number of pages** to scrape
+ (default page number is set to two), the **file path** to dump 
 the data and the data **export format**, which can be JSON or CSV. 
 You can even add proxy to the scraper via `request_proxies` parameter.
 __NOTE__: To extract as much tweets as possible set the page number to -1.
@@ -40,7 +41,7 @@ id,type,time,author,author_id,re_tweeter,associated_tweet,text,links,hashtags,me
 ....
 ```
 
-### Fetch Search/Hashtag Tweets
+### Fetch Advance Search Tweets
 
 ```python
 from tweetscrape.search_tweets import TweetScrapperSearch
@@ -74,7 +75,7 @@ search_mentions: Search tweets mentioning these accounts. eg. @avengers
 search_near_place: Search tweets near this place. eg. New York
 search_till_date: Search tweets until this date: YYYY-MM-DD eg. 2019-01-01
 search_since_date: Search tweets since this date: YYYY-MM-DD. eg. 2018-11-01
-language: Search tweets in language from language codes. eg. en for English
+language: Search tweets in language from language codes. eg. 'en' for English
 ```
 
 ### Extracted Tweets data model
@@ -88,7 +89,7 @@ Method | Description
 `get_tweet_time_ms()` | Tweet time in milliseconds
 `get_tweet_text()` | Original tweet text
 `get_tweet_links()` | Extracted external links from the tweet
-`get_tweet_hashtags()` | Extracted hastags from the tweet
+`get_tweet_hashtags()` | Extracted hashtags from the tweet
 `get_tweet_mentions()` | Mentioned Twitter users in the tweet
 `get_tweet_replies_count()` | Total count of replies on the tweet
 `get_tweet_favorite_count()` | Total count of favorites on the tweet
