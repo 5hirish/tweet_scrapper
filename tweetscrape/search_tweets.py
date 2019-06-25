@@ -105,7 +105,7 @@ class TweetScrapperSearch(TweetScrapper):
                                                                                               log_output=save_output,
                                                                                               output_file=output_file_name)
         # Stop Iteration ?
-        if last_tweet_time != "" and (self.pages == -1 or self.pages - 1 * 20 > tweet_count):
+        if last_tweet_time != "" and (self.pages == -1 or (self.pages - 1) * 20 > tweet_count):
             logger.info("Recursive search. Profile Limit exhausted: Till:" + last_tweet_time)
 
             self.__twitter_search_params_recursive__['q'] = search_query
@@ -258,11 +258,11 @@ if __name__ == '__main__':
     #                          pages=-1,
     #                          tweet_dump_format='csv')
 
-    ts = TweetScrapperSearch(search_all="2020",
+    ts = TweetScrapperSearch(search_all="trump",
                              tweet_dump_path='twitter.csv',
-                             pages=-1,
-                             search_since_date='2019-06-01',
-                             search_till_date='2019-06-23',
+                             pages=100,
+                             search_since_date='2019-01-01',
+                             search_till_date='2019-05-01',
                              tweet_dump_format='csv')
 
     # ts = TweetScrapperSearch(search_hashtags="FakeNews Trump", pages=1)
