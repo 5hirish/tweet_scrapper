@@ -18,7 +18,7 @@ URL = 'https://github.com/5hirish/tweet_scrapper'
 EMAIL = 'shirishkadam35@gmail.com'
 AUTHOR = 'Shirish Kadam'
 REQUIRES_PYTHON = '>=3.5.*'
-VERSION = '0.5.1'
+VERSION = '0.5.2'
 LICENSE = 'gpl3'
 
 PACKAGES = ['tweetscrape']
