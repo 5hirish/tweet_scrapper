@@ -23,11 +23,11 @@ $ python -m tweetscrape.twitter_scrape --help
 
 ## Getting Started
 ```bash
-$ python -m tweetscrape.twitter_scrape -u "5hirish"  -p 3 -d "twitter.csv" -f "csv"
-$ python -m tweetscrape.twitter_scrape --hashtag "#Python" -p 3 -d "twitter.csv" -f "csv"
-$ python -m tweetscrape.twitter_scrape --all "Avengers" --mention "@Marvel" -p 1 -d "twitter.csv" -f "csv"
-$ python -m tweetscrape.twitter_scrape --near "Brooklyn" -p 1 -d "twitter.csv" -f "csv"
-$ python -m tweetscrape.twitter_scrape --from "@CNN" --since "2019-06-20" --until "2019-06-23" -p 1 -d "twitter.csv" -f "csv"
+$ python -m tweetscrape.twitter_scrape -u "5hirish"  -n 60 -d "twitter.csv" -f "csv"
+$ python -m tweetscrape.twitter_scrape --hashtag "#Python" -n 60 -d "twitter.csv" -f "csv"
+$ python -m tweetscrape.twitter_scrape --all "Avengers" --mention "@Marvel" -n 20 -d "twitter.csv" -f "csv"
+$ python -m tweetscrape.twitter_scrape --near "Brooklyn" -n 20 -d "twitter.csv" -f "csv"
+$ python -m tweetscrape.twitter_scrape --from "@CNN" --since "2019-06-20" --until "2019-06-23" -n 20 -d "twitter.csv" -f "csv"
 ```
 
 ## Usage

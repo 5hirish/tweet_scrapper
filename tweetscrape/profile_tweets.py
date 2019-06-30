@@ -1,4 +1,5 @@
 import logging
+from math import ceil
 
 from tweetscrape.tweets_scrape import TweetScrapper
 from tweetscrape.search_tweets import TweetScrapperSearch
@@ -23,11 +24,15 @@ class TweetScrapperProfile(TweetScrapper):
     __twitter_profile_header__ = None
     __twitter_profile_params__ = None
 
-    def __init__(self, username, pages=2,
+    def __init__(self, username, num_tweets=40,
                  tweet_dump_path="", tweet_dump_format="",
                  request_proxies=None):
         self.username = username
-        self.pages = pages
+
+        if num_tweets > 0:
+            self.pages = ceil(num_tweets/20)
+        else:
+            self.pages = -1
 
         self.__twitter_profile_url__ = 'https://twitter.com/i/profiles/show/{username}/timeline/tweets' \
             .format(username=self.username)
@@ -46,7 +51,7 @@ class TweetScrapperProfile(TweetScrapper):
                          self.__twitter_profile_header__,
                          self.__twitter_profile_params__,
                          request_proxies,
-                         pages, tweet_dump_path, tweet_dump_format)
+                         self.pages, tweet_dump_path, tweet_dump_format)
 
     def get_profile_tweets(self, save_output=False):
         output_file_name = '/' + self.username + '_profile'
@@ -72,7 +77,7 @@ class TweetScrapperProfile(TweetScrapper):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    l_ts = TweetScrapperProfile("5hirish", 2, 'twitter.csv', 'csv')
+    l_ts = TweetScrapperProfile("5hirish", 40, 'twitter.csv', 'csv')
     l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = l_ts.get_profile_tweets(True)
     # for l_tweet in l_extracted_tweets:
     #     print(str(l_tweet))

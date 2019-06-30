@@ -10,17 +10,17 @@ $ python -m tweetscrape.twitter_scrape -h
 ```python
 from tweetscrape.profile_tweets import TweetScrapperProfile 
 
-tweet_scrapper = TweetScrapperProfile("5hirish", 2, 'twitter.csv', 'csv')
+tweet_scrapper = TweetScrapperProfile("5hirish", 40, 'twitter.csv', 'csv')
 tweet_count, tweet_id, tweet_time, dump_path = tweet_scrapper.get_profile_tweets()
 print("Extracted {0} tweets till {1} at {2}".format(tweet_count, tweet_time, dump_path))
 ```
 
 The `TweetScrapperProfile` class scrapes the tweets using Twitter frontend APIs with XPATH queries. 
-It requires four parameters, the Twitter **username**, the **number of pages** to scrape
- (default page number is set to two), the **file path** to dump 
+It requires four parameters, the Twitter **username**, the **number of tweets** to scrape
+ (default tweets scraped are 40), the **file path** to dump 
 the data and the data **export format**, which can be JSON or CSV. 
 You can even add proxy to the scraper via `request_proxies` parameter.
-__NOTE__: To extract as much tweets as possible set the page number to -1.
+__NOTE__: To extract as much tweets as possible set the number of tweets to -1.
 
 The `get_profile_tweets()` method returns the count of tweets, last extracted tweet id, last extracted tweet time and
  the file export path of extracted tweets. 
@@ -46,7 +46,7 @@ id,type,time,author,author_id,re_tweeter,associated_tweet,text,links,hashtags,me
 ```python
 from tweetscrape.search_tweets import TweetScrapperSearch
 
-tweet_scrapper = TweetScrapperSearch(search_from_accounts="@CNN", search_till_date="2016-04-01", search_since_date="2015-11-01", pages=2, tweet_dump_path='twitter.csv', tweet_dump_format='csv')
+tweet_scrapper = TweetScrapperSearch(search_from_accounts="@CNN", search_till_date="2016-04-01", search_since_date="2015-11-01", num_tweets=40, tweet_dump_path='twitter.csv', tweet_dump_format='csv')
 tweet_count, tweet_id, tweet_time, dump_path = tweet_scrapper.get_search_tweets()
 print("Extracted {0} tweets till {1} at {2}".format(tweet_count, tweet_time, dump_path))
 ```
@@ -54,7 +54,7 @@ print("Extracted {0} tweets till {1} at {2}".format(tweet_count, tweet_time, dum
 The `TweetScrapperSearch` class scrapes the tweets based on the hashtags or a search term or any of the 
 advanced filters of Twitter search [Twitter Search Advance](https://twitter.com/search-advanced).
  It requires multiple parameters, based on the filters you might want to search with. Based on these filters a query is
- constructed and searched on Twitter. It also requires the **number of pages** to scrape, the **file path** to dump 
+ constructed and searched on Twitter. It also requires the **number of tweets** to scrape, the **file path** to dump 
 the data and the data **export format**, which can be JSON or CSV.
 You can even add proxy to the scraper via `request_proxies` parameter.
 

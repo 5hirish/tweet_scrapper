@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from math import ceil
 
 from tweetscrape.tweets_scrape import TweetScrapper
 
@@ -41,12 +42,17 @@ class TweetScrapperSearch(TweetScrapper):
                  search_from_accounts="", search_to_accounts="", search_mentions="",
                  search_near_place="", search_near_distance="",
                  search_till_date="", search_since_date="",
-                 pages=2, language='',
+                 num_tweets=2, language='',
                  tweet_dump_path="", tweet_dump_format="",
                  request_proxies=None):
 
         self.search_type = "typd"
-        self.pages = pages
+
+        if num_tweets > 0:
+            self.pages = ceil(num_tweets/20)
+        else:
+            self.pages = -1
+
         self.search_since_date = search_since_date
 
         self.intermediate_query = self.construct_query(search_all, search_exact, search_any,
@@ -82,7 +88,7 @@ class TweetScrapperSearch(TweetScrapper):
         }
 
         super().__init__(None, None, None, request_proxies,
-                         pages, tweet_dump_path, tweet_dump_format)
+                         self.pages, tweet_dump_path, tweet_dump_format)
 
     def get_search_tweets(self, save_output=False):
         if self.time_query is not None and self.time_query != "":
@@ -255,12 +261,12 @@ if __name__ == '__main__':
     #
     # ts = TweetScrapperSearch(search_from_accounts="BarackObama",
     #                          tweet_dump_path='twitter.csv',
-    #                          pages=-1,
+    #                          num_tweets=-1,
     #                          tweet_dump_format='csv')
 
     ts = TweetScrapperSearch(search_all="trump",
                              tweet_dump_path='twitter.csv',
-                             pages=100,
+                             num_tweets=100,
                              search_since_date='2019-01-01',
                              search_till_date='2019-05-01',
                              tweet_dump_format='csv')
@@ -270,16 +276,16 @@ if __name__ == '__main__':
     # # avengers endgame spiderman OR ironman -spoilers
     # ts = TweetScrapperSearch(search_all="avengers endgame",
     #                          search_any="spiderman ironman",
-    #                          search_excludes="spoilers", pages=2)
+    #                          search_excludes="spoilers", num_tweets=2)
     #
     # ts = TweetScrapperSearch(search_all="avengers marvel",
     #                          search_hashtags="avengers",
     #                          search_from_accounts="marvel ",
-    #                          pages=2)
+    #                          num_tweets=2)
     #
     # ts = TweetScrapperSearch(search_all="raptors",
     #                          search_since_date="2019-03-01", search_till_date="2019-06-01",
-    #                          pages=1)
+    #                          num_tweets=1)
     #
     # ts = TweetScrapperSearch(search_hashtags="raptors", search_near_place="toronto", pages=1)
     l_tweet_count, l_tweet_id, l_last_time, l_dump_path = ts.get_search_tweets(True)
