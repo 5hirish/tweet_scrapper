@@ -109,7 +109,7 @@ class TweetScrapperSearch(TweetScrapper):
         output_file_name = '/' + search_query + '_search'
         tweet_count, last_tweet_id, last_tweet_time, dump_path = self.execute_twitter_request(search_term=search_query,
                                                                                               log_output=save_output,
-                                                                                              output_file=output_file_name)
+                                                                                              log_file=output_file_name)
         # Stop Iteration ?
         if last_tweet_time != "" and (self.pages == -1 or (self.pages - 1) * 20 > tweet_count):
             logger.info("Recursive search. Profile Limit exhausted: Till:" + last_tweet_time)

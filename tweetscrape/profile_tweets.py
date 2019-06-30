@@ -34,7 +34,7 @@ class TweetScrapperProfile(TweetScrapper):
         else:
             self.pages = -1
 
-        self.__twitter_profile_url__ = 'https://twitter.com/i/profiles/show/{username}/timeline/tweets' \
+        self.__twitter_profile_timeline_url__ = 'https://twitter.com/i/profiles/show/{username}/timeline/tweets' \
             .format(username=self.username)
 
         self.__twitter_profile_params__ = {
@@ -47,7 +47,7 @@ class TweetScrapperProfile(TweetScrapper):
             'referer': 'https://twitter.com/{username}'.format(username=self.username)
         }
 
-        super().__init__(self.__twitter_profile_url__,
+        super().__init__(self.__twitter_profile_timeline_url__,
                          self.__twitter_profile_header__,
                          self.__twitter_profile_params__,
                          request_proxies,
@@ -57,11 +57,12 @@ class TweetScrapperProfile(TweetScrapper):
         output_file_name = '/' + self.username + '_profile'
         # Search Profile since: until: from:
         if self.username is not None and self.username != "":
+            # self.update_request_url(self.__twitter_profile_timeline_url__)
             self.username = self.username.replace("@", "")
             tweet_count, last_tweet_id, last_tweet_time, dump_path = \
                 self.execute_twitter_request(username=self.username,
                                              log_output=save_output,
-                                             output_file=output_file_name)
+                                             log_file=output_file_name)
 
             if self.pages == -1 or (self.pages - 1 * 20) > tweet_count:
                 logger.info("Switching to search mode. Profile Limit exhausted")

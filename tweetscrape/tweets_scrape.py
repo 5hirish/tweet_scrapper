@@ -15,13 +15,9 @@ except ImportError:
     JSONDecodeError = ValueError
 
 from tweetscrape.model.tweet_model import TweetInfo
+from tweetscrape.model.user_model import UserInfo
 
 logger = logging.getLogger(__name__)
-
-
-"""
-User-Agents: https://udger.com/resources/ua-list
-"""
 
 
 class TweetScrapper:
@@ -45,6 +41,18 @@ class TweetScrapper:
                                             span[contains(@class, "ProfileTweet-action--favorite")]/span'''
     _tweet_retweet_count_pattern_ = '''./div[@class="stream-item-footer"]/div/
                                             span[contains(@class, "ProfileTweet-action--retweet")]/span'''
+
+    _tweet_user_profile_sidebar_ = '''//div[contains(@class, "ProfileSidebar)]'''
+    _tweet_user_profile_canopy_ = '''//div[contains(@class, "ProfileCanopy)]'''
+    _tweet_user_tweets_count_ = '''//li[contains(@class, "ProfileNav-item--tweets")]/a/span[3]'''
+    _tweet_user_following_count_ = '''//li[contains(@class, "ProfileNav-item--following")]/a/span[3]'''
+    _tweet_user_followers_count_ = '''//li[contains(@class, "ProfileNav-item--followers")]/a/span[3]'''
+    _tweet_user_favorites_count_ = '''//li[contains(@class, "ProfileNav-item--favorites")]/a/span[3]'''
+    _tweet_user_lists_count_ = '''//li[contains(@class, "ProfileNav-item--lists")]/a/span[3]'''
+    _tweet_user_name_ = '''//h1[contains(@class, "ProfileHeaderCard-name")]/a'''
+    _tweet_user_bio_ = '''//p[contains(@class, "ProfileHeaderCard-bio")]'''
+    _tweet_user_location_ = '''//div[contains(@class, "ProfileHeaderCard-location")]/span[2]'''
+    _tweet_user_url_ = '''//p[contains(@class, "ProfileHeaderCard-url")]/span[2]/a'''
 
     _tweet_hastag_pattern_ = r'''/hashtag/([0-9a-zA-Z_]*)\?src=hash'''
 
@@ -72,6 +80,7 @@ class TweetScrapper:
     twitter_date_format = '%Y-%m-%d'
     current_cursor = None
     scrape_pages = 2
+    scraped_user_info = None
 
     def __init__(self, twitter_request_url, twitter_request_header,
                  twitter_request_params=None, twitter_request_proxies=None, scrape_pages=2,
@@ -102,6 +111,9 @@ class TweetScrapper:
             self.proxy_json = proxy_json
 
     def switch_request_user_agent(self):
+        """
+        User-Agents: https://udger.com/resources/ua-list
+        """
         logger.info("Switching user-agent")
         self.__twitter_request_header__['user-agent'] = random.choice(self.__twitter_user_agent__)
 
@@ -131,7 +143,7 @@ class TweetScrapper:
     def clear_old_cursor(self):
         self.current_cursor = None
 
-    def execute_twitter_request(self, username=None, search_term=None, log_output=False, output_file=None,
+    def execute_twitter_request(self, username=None, search_term=None, log_output=False, log_file=None,
                                 add_delay=False, delay_tweet_count=100):
         tweet_count = 0
         last_tweet_id, last_tweet_time = '', ''
@@ -192,11 +204,17 @@ class TweetScrapper:
                     tweets_html = response.text
 
                 if log_output:
-                    save_output(output_file + '.html', tweets_html)
+                    save_output_log(log_file + '.html', tweets_html)
 
                 html_tree = etree.fromstring(tweets_html, self.html_parser)
 
                 if html_tree is not None:
+
+                    profile_sidebar = html_tree.xpath(self._tweet_user_profile_sidebar_)
+                    profile_canopy = html_tree.xpath(self._tweet_user_profile_canopy_)
+                    if profile_sidebar is not None and profile_canopy is not None:
+                        self.extract_user_data(profile_sidebar, profile_canopy)
+
                     tweet_stream = html_tree.xpath(self._tweet_stream_max_)
                     if tweet_stream is not None and len(tweet_stream) > 0:
                         min_position = tweet_stream[0].attrib['data-min-position']
@@ -345,8 +363,16 @@ class TweetScrapper:
             logger.debug("Batch written to file:{0}".format(self.__twitter_tweet_persist_file_path__))
             return last_tweet_id, last_tweet_timestamp, tweet_count
 
+    def extract_user_data(self, profile_sidebar, profile_canopy):
+        pass
 
-def save_output(filename, data):
+    def get_user_info(self):
+        if self.scraped_user_info is not None:
+            return self.scraped_user_info.get_json()
+        return None
+
+
+def save_output_log(filename, data):
     if filename is not None and data is not None:
         file_path = os.path.dirname(os.path.realpath(__file__))
         with open(file_path + filename, 'w') as fp:
