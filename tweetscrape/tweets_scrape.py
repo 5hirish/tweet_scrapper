@@ -89,10 +89,30 @@ class TweetScrapper:
         self.hashtag_capture = re.compile(self._tweet_hastag_pattern_)
 
         self.html_parser = etree.HTMLParser(remove_blank_text=True, remove_comments=True)
+        self.proxy_json = None
 
-    def switch_user_agent(self):
+    def set_proxy_list(self, proxy_json=None):
+        """
+        :param proxy_json: {
+            "http": ["http://username:password@address:port", ...],
+            "https: ["https://username:password@address:port", ...]
+        }
+        """
+        if isinstance(proxy_json.get("http"), (list,)) or isinstance(proxy_json.get("https"), (list,)):
+            self.proxy_json = proxy_json
+
+    def switch_request_user_agent(self):
         logger.info("Switching user-agent")
         self.__twitter_request_header__['user-agent'] = random.choice(self.__twitter_user_agent__)
+
+    def switch_request_proxy(self):
+        logger.info("Switching proxy")
+        if self.proxy_json is not None:
+            request_proxy = {
+                "http": random.choice(self.proxy_json.get("http")),
+                "https": random.choice(self.proxy_json.get("https"))
+            }
+            self.__twitter_request_proxies__ = request_proxy
 
     def update_request_params(self, twitter_request_url, twitter_request_params, update_refer=False):
         if twitter_request_params is not None:

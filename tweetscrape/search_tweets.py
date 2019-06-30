@@ -128,7 +128,9 @@ class TweetScrapperSearch(TweetScrapper):
                 logger.info("Circular search detected. Taking measures...")
 
                 # Try changing user-agent (Best case)
-                self.switch_user_agent()
+                self.switch_request_user_agent()
+                # Try changing request proxy
+                self.switch_request_proxy()
                 # Try adding a request delay (Works in front-end)
                 # time.sleep(random.choice(self.__twitter_request_delays__))
                 # Try stepping the date (Worst case)
