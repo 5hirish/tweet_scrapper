@@ -20,7 +20,7 @@ def test_search_tweets(test_term, test_page):
                              tweet_dump_path='twitter.csv',
                              tweet_dump_format='csv')
 
-    tweet_count, tweet_id, last_time, dump_path = ts.get_search_tweets(False)
+    tweet_count, tweet_id, last_time, dump_path = ts.get_search_tweets()
 
     assert os.path.exists(dump_path)
 
@@ -51,7 +51,7 @@ def test_hashtag_tweets(test_tag, test_page):
                              tweet_dump_path='twitter.csv',
                              tweet_dump_format='csv')
 
-    tweet_count, tweet_id, last_time, dump_path = ts.get_search_tweets(False)
+    tweet_count, tweet_id, last_time, dump_path = ts.get_search_tweets()
 
     assert os.path.exists(dump_path)
 
@@ -86,7 +86,7 @@ def test_time_interval_tweets(test_until, test_since, test_from, test_page):
                              tweet_dump_path='twitter.csv',
                              tweet_dump_format='csv')
 
-    tweet_count, tweet_id, last_time, dump_path = ts.get_search_tweets(False)
+    tweet_count, tweet_id, last_time, dump_path = ts.get_search_tweets()
 
     since_timestamp = datetime.strptime(test_since, '%Y-%m-%d').timestamp()
     until_timestamp = datetime.strptime(test_until, '%Y-%m-%d').timestamp()

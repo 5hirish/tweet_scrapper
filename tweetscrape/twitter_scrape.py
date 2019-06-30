@@ -177,7 +177,7 @@ def main(args):
                                   tweet_dump_path=args.tweet_dump_path, tweet_dump_format=args.tweet_dump_format,
                                   request_proxies=args.request_proxies)
 
-        l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = ts.get_profile_tweets(False)
+        l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = ts.get_profile_tweets()
         print("Extracted {0} tweets till {1} at {2}".format(l_tweet_count, l_tweet_time, l_dump_path))
         return "Extracted {0} tweets till {1} at {2}".format(l_tweet_count, l_tweet_time, l_dump_path)
 
@@ -193,7 +193,7 @@ def main(args):
                                  tweet_dump_path=args.tweet_dump_path, tweet_dump_format=args.tweet_dump_format,
                                  request_proxies=args.request_proxies)
 
-        l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = ts.get_search_tweets(False)
+        l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = ts.get_search_tweets()
         print("Extracted {0} tweets till {1} at {2}".format(l_tweet_count, l_tweet_time, l_dump_path))
         return "Extracted {0} tweets till {1} at {2}".format(l_tweet_count, l_tweet_time, l_dump_path)
 

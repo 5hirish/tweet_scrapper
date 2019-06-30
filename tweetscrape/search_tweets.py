@@ -72,13 +72,11 @@ class TweetScrapperSearch(TweetScrapper):
         self.__twitter_search_init_url__ = 'https://twitter.com/search'
 
         self.__twitter_search_init_params__ = {
-            'f': 'tweets',
             'vertical': 'default',
             'src': self.search_type,
         }
 
         self.__twitter_search_params_recursive__ = {
-            'f': 'tweets',
             'vertical': 'default',
             'src': self.search_type,
             'l': language,
@@ -90,7 +88,7 @@ class TweetScrapperSearch(TweetScrapper):
         super().__init__(None, None, None, request_proxies,
                          self.pages, tweet_dump_path, tweet_dump_format)
 
-    def get_search_tweets(self, save_output=False):
+    def get_search_tweets(self, latest_tweets=True, save_output=False):
         if self.time_query is not None and self.time_query != "":
             search_query = self.intermediate_query + " " + self.time_query
         else:
@@ -98,6 +96,8 @@ class TweetScrapperSearch(TweetScrapper):
 
         logger.info("Search:|{0}|".format(search_query))
 
+        if latest_tweets:
+            self.__twitter_request_params__['f'] = 'tweets'
         self.__twitter_search_init_params__['q'] = search_query
 
         self.update_request_url(self.__twitter_search_init_url__)
@@ -114,6 +114,8 @@ class TweetScrapperSearch(TweetScrapper):
         if last_tweet_time != "" and (self.pages == -1 or (self.pages - 1) * 20 > tweet_count):
             logger.info("Recursive search. Profile Limit exhausted: Till:" + last_tweet_time)
 
+            if latest_tweets:
+                self.__twitter_search_params_recursive__['f'] = 'tweets'
             self.__twitter_search_params_recursive__['q'] = search_query
             self.__twitter_search_init_params__['q'] = search_query
 
@@ -290,7 +292,7 @@ if __name__ == '__main__':
     #                          num_tweets=1)
     #
     # ts = TweetScrapperSearch(search_hashtags="raptors", search_near_place="toronto", pages=1)
-    l_tweet_count, l_tweet_id, l_last_time, l_dump_path = ts.get_search_tweets(True)
+    l_tweet_count, l_tweet_id, l_last_time, l_dump_path = ts.get_search_tweets(latest_tweets=True, save_output=True)
     # for l_tweet in l_extracted_tweets:
     #     print(str(l_tweet))
     print(l_tweet_count)
