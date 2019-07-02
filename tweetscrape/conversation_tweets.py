@@ -22,10 +22,6 @@ class TweetScrapperConversation(TweetScrapper):
     username = "5hirish"
     pages = 0
 
-    __twitter_conversation_url__ = None
-    __twitter_conversation_header__ = None
-    __twitter_conversation_params__ = None
-
     def __init__(self, username, parent_tweet_id, num_tweets=40,
                  tweet_dump_path="", tweet_dump_format="",
                  request_proxies=None):
@@ -33,12 +29,16 @@ class TweetScrapperConversation(TweetScrapper):
         self.parent_tweet_id = parent_tweet_id
 
         if num_tweets > 0:
-            self.pages = ceil(num_tweets/20)
+            self.pages = ceil(num_tweets / 20)
         else:
             self.pages = -1
 
-        self.__twitter_conversation_url__ = 'https://twitter.com/i/{username}/conversation/{parent_tweet_id}' \
+        self.__twitter_init_conversation_url__ = 'https://twitter.com/{username}/status/{parent_tweet_id}' \
             .format(username=self.username, parent_tweet_id=self.parent_tweet_id)
+
+        self.__twitter_init_conversation_params__ = {
+            'conversation_id': self.parent_tweet_id
+        }
 
         self.__twitter_conversation_params__ = {
             'include_available_features': 1,
@@ -47,23 +47,25 @@ class TweetScrapperConversation(TweetScrapper):
         }
 
         self.__twitter_conversation_header__ = {
-            'referer': self.__twitter_conversation_url__
+            'referer': 'https://twitter.com/{username}/status/{parent_tweet_id}'
+                .format(username=self.username, parent_tweet_id=self.parent_tweet_id)
         }
 
-        super().__init__(self.__twitter_conversation_url__,
+        super().__init__(self.__twitter_init_conversation_url__,
                          self.__twitter_conversation_header__,
-                         self.__twitter_conversation_params__,
+                         self.__twitter_init_conversation_params__,
                          request_proxies,
                          self.pages, tweet_dump_path, tweet_dump_format)
 
     def get_profile_tweets(self, save_output=False):
         output_file_name = '/' + self.username + '_conversation'
         # Search Profile since: until: from:
+        # conversation_id
         if self.username is not None and self.username != "":
-            # self.update_request_url(self.__twitter_profile_timeline_url__)
             self.username = self.username.replace("@", "")
             tweet_count, last_tweet_id, last_tweet_time, dump_path = \
                 self.execute_twitter_request(username=self.username,
+                                             conversation_id=self.parent_tweet_id,
                                              log_output=save_output,
                                              log_file=output_file_name)
 
@@ -81,7 +83,8 @@ class TweetScrapperConversation(TweetScrapper):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    l_ts = TweetScrapperConversation("ewarren", 40, 1145502152170921984, 'twitter.csv', 'csv')
+    # https://twitter.com/ewarren/status/1146132929065738246?conversation_id=1146132929065738246
+    l_ts = TweetScrapperConversation("ewarren", 1145502152170921984, 40, 'twitter_conv.csv', 'csv')
     l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = l_ts.get_profile_tweets(True)
     # for l_tweet in l_extracted_tweets:
     #     print(str(l_tweet))

@@ -26,7 +26,7 @@ class TweetScrapper:
     __twitter_request_params__ = None
 
     _tweets_pattern_ = '''//li[contains(@class,"stream-item")]'''
-    _tweet_stream_max_ = '''//*[@id="timeline"]/div'''
+    _tweet_stream_max_ = '''//*[@id="timeline" or @id="descendants"]/div'''
 
     _tweet_min_position = '''data-min-position'''
     _tweet_content_pattern_ = '''./div[@class="content"]'''
@@ -76,6 +76,7 @@ class TweetScrapper:
     __twitter_request_delays__ = [2, 3, 4, 5, 6, 7]
 
     __twitter_search_url__ = 'https://twitter.com/i/search/timeline'
+    __twitter_conversation_url__ = 'https://twitter.com/i/{username}/conversation/{parent_tweet_id}'
 
     twitter_date_format = '%Y-%m-%d'
     current_cursor = None
@@ -143,7 +144,7 @@ class TweetScrapper:
     def clear_old_cursor(self):
         self.current_cursor = None
 
-    def execute_twitter_request(self, username=None, search_term=None, log_output=False, log_file=None,
+    def execute_twitter_request(self, username=None, search_term=None, conversation_id=None, log_output=False, log_file=None,
                                 add_delay=False, delay_tweet_count=100):
         tweet_count = 0
         last_tweet_id, last_tweet_time = '', ''
@@ -174,6 +175,9 @@ class TweetScrapper:
             if response.ok and response.status_code == 200:
                 if search_term is not None:
                     self.__twitter_request_url__ = self.__twitter_search_url__
+                elif username is not None and conversation_id is not None:
+                    self.__twitter_request_url__ = self.__twitter_conversation_url__\
+                        .format(username=username, parent_tweet_id=conversation_id)
 
                 logger.debug("Page {0} request: {1}".format(abs(self.scrape_pages), response.status_code))
 
@@ -209,7 +213,7 @@ class TweetScrapper:
                 html_tree = etree.fromstring(tweets_html, self.html_parser)
 
                 if html_tree is not None:
-                    if username is not None:
+                    if username is not None and conversation_id is None:
                         profile_sidebar = html_tree.xpath(self._tweet_user_profile_sidebar_)
                         profile_canopy = html_tree.xpath(self._tweet_user_profile_canopy_)
                         if profile_sidebar is not None and profile_canopy is not None:
@@ -245,6 +249,9 @@ class TweetScrapper:
                     # self.__twitter_request_params__['min_position'] = last_tweet_id
                     self.__twitter_request_params__['reset_error_state'] = 'false'
                     self.__twitter_request_params__['max_position'] = self.current_cursor
+
+                    if conversation_id is not None:
+                        self.__twitter_request_params__.pop('conversation_id', None)
 
                     if add_delay and tweet_count % delay_tweet_count == 0:
                         delay = random.choice(self.__twitter_request_delays__)
