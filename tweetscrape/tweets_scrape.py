@@ -42,17 +42,17 @@ class TweetScrapper:
     _tweet_retweet_count_pattern_ = '''./div[@class="stream-item-footer"]/div/
                                             span[contains(@class, "ProfileTweet-action--retweet")]/span'''
 
-    _tweet_user_profile_sidebar_ = '''//div[contains(@class, "ProfileSidebar)]'''
-    _tweet_user_profile_canopy_ = '''//div[contains(@class, "ProfileCanopy)]'''
+    _tweet_user_profile_sidebar_ = '''//div[contains(@class, "ProfileSidebar")]'''
+    _tweet_user_profile_canopy_ = '''//div[contains(@class, "ProfileCanopy-navBar")]'''
     _tweet_user_tweets_count_ = '''//li[contains(@class, "ProfileNav-item--tweets")]/a/span[3]'''
     _tweet_user_following_count_ = '''//li[contains(@class, "ProfileNav-item--following")]/a/span[3]'''
     _tweet_user_followers_count_ = '''//li[contains(@class, "ProfileNav-item--followers")]/a/span[3]'''
     _tweet_user_favorites_count_ = '''//li[contains(@class, "ProfileNav-item--favorites")]/a/span[3]'''
     _tweet_user_lists_count_ = '''//li[contains(@class, "ProfileNav-item--lists")]/a/span[3]'''
-    _tweet_user_name_ = '''//h1[contains(@class, "ProfileHeaderCard-name")]/a'''
-    _tweet_user_bio_ = '''//p[contains(@class, "ProfileHeaderCard-bio")]'''
-    _tweet_user_location_ = '''//div[contains(@class, "ProfileHeaderCard-location")]/span[2]'''
-    _tweet_user_url_ = '''//p[contains(@class, "ProfileHeaderCard-url")]/span[2]/a'''
+    _tweet_user_name_ = '''//h1[contains(@class, "ProfileHeaderCard-name")]/a/text()'''
+    _tweet_user_bio_ = '''//p[contains(@class, "ProfileHeaderCard-bio")]//text()'''
+    _tweet_user_location_ = '''//div[contains(@class, "ProfileHeaderCard-location")]/span[2]/a'''
+    _tweet_user_url_ = '''//div[contains(@class, "ProfileHeaderCard-url")]/span[2]/a'''
 
     _tweet_hastag_pattern_ = r'''/hashtag/([0-9a-zA-Z_]*)\?src=hash'''
 
@@ -209,11 +209,11 @@ class TweetScrapper:
                 html_tree = etree.fromstring(tweets_html, self.html_parser)
 
                 if html_tree is not None:
-
-                    profile_sidebar = html_tree.xpath(self._tweet_user_profile_sidebar_)
-                    profile_canopy = html_tree.xpath(self._tweet_user_profile_canopy_)
-                    if profile_sidebar is not None and profile_canopy is not None:
-                        self.extract_user_data(profile_sidebar, profile_canopy)
+                    if username is not None:
+                        profile_sidebar = html_tree.xpath(self._tweet_user_profile_sidebar_)
+                        profile_canopy = html_tree.xpath(self._tweet_user_profile_canopy_)
+                        if profile_sidebar is not None and profile_canopy is not None:
+                            self.extract_user_data(username, profile_sidebar, profile_canopy)
 
                     tweet_stream = html_tree.xpath(self._tweet_stream_max_)
                     if tweet_stream is not None and len(tweet_stream) > 0:
@@ -363,8 +363,51 @@ class TweetScrapper:
             logger.debug("Batch written to file:{0}".format(self.__twitter_tweet_persist_file_path__))
             return last_tweet_id, last_tweet_timestamp, tweet_count
 
-    def extract_user_data(self, profile_sidebar, profile_canopy):
-        pass
+    def extract_user_data(self, user_handle, profile_sidebar, profile_canopy):
+
+        user_display_name = profile_sidebar[0].xpath(self._tweet_user_name_)
+        if user_display_name is not None and len(user_display_name) > 0:
+            user_display_name_val = ''.join(user_display_name)
+        else:
+            user_display_name_val = ''
+        user_bio_val = profile_sidebar[0].xpath(self._tweet_user_bio_)
+        if user_bio_val is not None and len(user_bio_val) > 0:
+            user_bio_val = ''.join(user_bio_val).replace('\xa0', '')
+        else:
+            user_bio_val = ''
+        user_location = profile_sidebar[0].xpath(self._tweet_user_location_)
+        if user_location is not None and len(user_location) > 0:
+            user_location_id_val = user_location[0].attrib.get('data-place-id')
+            user_location_val = user_location[0].text
+        else:
+            user_location_id_val, user_location_val = '', ''
+        user_url = profile_sidebar[0].xpath(self._tweet_user_url_)
+        if user_url is not None and len(user_url) > 0:
+            user_url_val = user_url[0].attrib.get('title')
+        else:
+            user_url_val = ''
+
+        user_tweets_count = profile_canopy[0].xpath(self._tweet_user_tweets_count_)
+        user_count_val = user_tweets_count[0].attrib.get('data-count')
+        user_following = profile_canopy[0].xpath(self._tweet_user_following_count_)
+        user_following_val = user_following[0].attrib.get('data-count')
+        user_follower = profile_canopy[0].xpath(self._tweet_user_followers_count_)
+        user_follower_val = user_follower[0].attrib.get('data-count')
+        user_favorites = profile_canopy[0].xpath(self._tweet_user_favorites_count_)
+        user_favorites_val = user_favorites[0].attrib.get('data-count')
+
+        self.scraped_user_info = UserInfo(
+            user_handle,
+            user_display_name_val,
+            user_bio_val,
+            user_location_val,
+            user_location_id_val,
+            user_url_val,
+            user_count_val,
+            user_following_val,
+            user_follower_val,
+            user_favorites_val
+        )
 
     def get_user_info(self):
         if self.scraped_user_info is not None:

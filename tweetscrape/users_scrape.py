@@ -4,10 +4,10 @@ from datetime import datetime
 from tweetscrape.tweets_scrape import TweetScrapper
 
 
-class TwitterUserPopup(TweetScrapper):
+class TweetScrapperUser(TweetScrapper):
     username = "5hirish"
 
-    def __init__(self, username, request_proxies):
+    def __init__(self, username, request_proxies=None):
         self.username = username
 
         self.__twitter_profile_popup_url__ = 'https://twitter.com/i/profiles/popup'
@@ -34,7 +34,7 @@ class TwitterUserPopup(TweetScrapper):
                          request_proxies,
                         1, None, None)
 
-    def get_profile_info(self, save_output):
+    def get_profile_info(self, save_output=False):
         output_file_name = '/' + self.username + '_profile'
         if self.username is not None and self.username != "":
             tweet_count, last_tweet_id, last_tweet_time, dump_path = \
@@ -49,3 +49,9 @@ class TwitterUserPopup(TweetScrapper):
         self.__twitter_profile_popup_params__['user_id'] = 1
 
         # XPATH extraction from the popup here
+
+
+if __name__ == '__main__':
+    ts = TweetScrapperUser("@5hirish")
+    l_user = ts.get_profile_info()
+    print(l_user)
