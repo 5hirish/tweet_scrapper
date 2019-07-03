@@ -251,7 +251,13 @@ class TweetScrapper:
                     self.__twitter_request_params__['max_position'] = self.current_cursor
 
                     if conversation_id is not None:
-                        self.__twitter_request_params__.pop('conversation_id', None)
+                        self.__twitter_request_params__ = {
+                            'include_available_features': 1,
+                            'include_entities': 1,
+                            'max_position': self.current_cursor,
+                            'reset_error_state': 'false'
+                        }
+                        # self.__twitter_request_params__.pop('conversation_id', None)
 
                     if add_delay and tweet_count % delay_tweet_count == 0:
                         delay = random.choice(self.__twitter_request_delays__)
@@ -301,7 +307,7 @@ class TweetScrapper:
 
                             for raw_link in tweet_links_raw:
                                 raw_url = raw_link.attrib.get('href')
-                                if raw_url.startswith('https://'):
+                                if raw_url.startswith('https://') or raw_url.startswith('http://'):
                                     tweet_data.set_tweet_links(raw_url)
                                 elif raw_url.startswith('/hashtag/'):
                                     hash_tag_group = re.match(self.hashtag_capture, raw_url)

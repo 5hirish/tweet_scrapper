@@ -42,8 +42,7 @@ class TweetScrapperConversation(TweetScrapper):
 
         self.__twitter_conversation_params__ = {
             'include_available_features': 1,
-            'include_entities': 1,
-            'include_new_items_bar': True
+            'include_entities': 1
         }
 
         self.__twitter_conversation_header__ = {
@@ -84,7 +83,7 @@ class TweetScrapperConversation(TweetScrapper):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     # https://twitter.com/ewarren/status/1146132929065738246?conversation_id=1146132929065738246
-    l_ts = TweetScrapperConversation("ewarren", 1145502152170921984, 40, 'twitter_conv.csv', 'csv')
+    l_ts = TweetScrapperConversation("ewarren", 1146415363460141057, 40, 'twitter_conv.csv', 'csv')
     l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = l_ts.get_profile_tweets(True)
     # for l_tweet in l_extracted_tweets:
     #     print(str(l_tweet))
