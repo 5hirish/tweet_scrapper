@@ -35,7 +35,7 @@ $ python -m tweetscrape.twitter_scrape --from "@CNN" --since "2019-06-20" --unti
 ```python
 from tweetscrape.profile_tweets import TweetScrapperProfile 
 
-tweet_scrapper = TweetScrapperProfile("5hirish", 2, 'twitter.csv', 'csv')
+tweet_scrapper = TweetScrapperProfile("5hirish", 40, 'twitter.csv', 'csv')
 tweet_count, tweet_id, tweet_time, dump_path = tweet_scrapper.get_profile_tweets()
 print("Extracted {0} tweets till {1} at {2}".format(tweet_count, tweet_time, dump_path))
 ```
