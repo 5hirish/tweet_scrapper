@@ -104,9 +104,9 @@ def parse_args(args):
         type=str,
         metavar="")
     parser.add_argument(
-        '-p',
-        dest="pages",
-        help="Number of pages to fetch, maximum is 25",
+        '-n',
+        dest="num_tweets",
+        help="Number of tweets to fetch",
         type=int,
         metavar="")
     parser.add_argument(
@@ -173,11 +173,11 @@ def main(args):
 
     if args.username is not None:
 
-        ts = TweetScrapperProfile(username=args.username, pages=args.pages,
+        ts = TweetScrapperProfile(username=args.username, num_tweets=args.pages,
                                   tweet_dump_path=args.tweet_dump_path, tweet_dump_format=args.tweet_dump_format,
                                   request_proxies=args.request_proxies)
 
-        l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = ts.get_profile_tweets(False)
+        l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = ts.get_profile_tweets()
         print("Extracted {0} tweets till {1} at {2}".format(l_tweet_count, l_tweet_time, l_dump_path))
         return "Extracted {0} tweets till {1} at {2}".format(l_tweet_count, l_tweet_time, l_dump_path)
 
@@ -189,11 +189,11 @@ def main(args):
                                  search_to_accounts=args.search_to_accounts, search_mentions=args.search_mentions,
                                  search_near_place=args.search_near_place,
                                  search_till_date=args.search_till_date, search_since_date=args.search_since_date,
-                                 pages=args.pages, language=args.language,
+                                 num_tweets=args.pages, language=args.language,
                                  tweet_dump_path=args.tweet_dump_path, tweet_dump_format=args.tweet_dump_format,
                                  request_proxies=args.request_proxies)
 
-        l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = ts.get_search_tweets(False)
+        l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = ts.get_search_tweets()
         print("Extracted {0} tweets till {1} at {2}".format(l_tweet_count, l_tweet_time, l_dump_path))
         return "Extracted {0} tweets till {1} at {2}".format(l_tweet_count, l_tweet_time, l_dump_path)
 

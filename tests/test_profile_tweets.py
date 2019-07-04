@@ -5,10 +5,10 @@ from tweetscrape.profile_tweets import TweetScrapperProfile
 
 
 @pytest.mark.parametrize("test_user,test_page", [
-        ("@BarackObama", 2),
-        ("@fchollet", 6),
-        ("@Kasparov63", 1),
-        ("@ShashiTharoor", 10),
+        ("@BarackObama", 40),
+        ("@fchollet", 120),
+        ("@Kasparov63", 20),
+        ("@ShashiTharoor", 200),
         # ("@EdwardSnowden", 15),
         # ("@colbertlateshow", 5),
         # ("@HamillHimself", 4)
@@ -21,7 +21,7 @@ def test_user_tweets(test_user, test_page):
     assert os.path.exists(dump_path)
 
     if test_page > 0:
-        assert tweet_count == pytest.approx(test_page * 20, abs=5)
+        assert tweet_count == pytest.approx(test_page, abs=5)
 
     with open(dump_path, 'r') as csv_fp:
         csv_reader = csv.DictReader(csv_fp)

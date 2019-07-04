@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from math import ceil
 
 from tweetscrape.tweets_scrape import TweetScrapper
 
@@ -41,12 +42,17 @@ class TweetScrapperSearch(TweetScrapper):
                  search_from_accounts="", search_to_accounts="", search_mentions="",
                  search_near_place="", search_near_distance="",
                  search_till_date="", search_since_date="",
-                 pages=2, language='',
+                 num_tweets=2, language='',
                  tweet_dump_path="", tweet_dump_format="",
                  request_proxies=None):
 
         self.search_type = "typd"
-        self.pages = pages
+
+        if num_tweets > 0:
+            self.pages = ceil(num_tweets/20)
+        else:
+            self.pages = -1
+
         self.search_since_date = search_since_date
 
         self.intermediate_query = self.construct_query(search_all, search_exact, search_any,
@@ -66,13 +72,11 @@ class TweetScrapperSearch(TweetScrapper):
         self.__twitter_search_init_url__ = 'https://twitter.com/search'
 
         self.__twitter_search_init_params__ = {
-            'f': 'tweets',
             'vertical': 'default',
             'src': self.search_type,
         }
 
         self.__twitter_search_params_recursive__ = {
-            'f': 'tweets',
             'vertical': 'default',
             'src': self.search_type,
             'l': language,
@@ -82,9 +86,9 @@ class TweetScrapperSearch(TweetScrapper):
         }
 
         super().__init__(None, None, None, request_proxies,
-                         pages, tweet_dump_path, tweet_dump_format)
+                         self.pages, tweet_dump_path, tweet_dump_format)
 
-    def get_search_tweets(self, save_output=False):
+    def get_search_tweets(self, latest_tweets=True, save_output=False):
         if self.time_query is not None and self.time_query != "":
             search_query = self.intermediate_query + " " + self.time_query
         else:
@@ -92,6 +96,8 @@ class TweetScrapperSearch(TweetScrapper):
 
         logger.info("Search:|{0}|".format(search_query))
 
+        if latest_tweets:
+            self.__twitter_search_init_params__['f'] = 'tweets'
         self.__twitter_search_init_params__['q'] = search_query
 
         self.update_request_url(self.__twitter_search_init_url__)
@@ -103,11 +109,13 @@ class TweetScrapperSearch(TweetScrapper):
         output_file_name = '/' + search_query + '_search'
         tweet_count, last_tweet_id, last_tweet_time, dump_path = self.execute_twitter_request(search_term=search_query,
                                                                                               log_output=save_output,
-                                                                                              output_file=output_file_name)
+                                                                                              log_file=output_file_name)
         # Stop Iteration ?
         if last_tweet_time != "" and (self.pages == -1 or (self.pages - 1) * 20 > tweet_count):
             logger.info("Recursive search. Profile Limit exhausted: Till:" + last_tweet_time)
 
+            if latest_tweets:
+                self.__twitter_search_params_recursive__['f'] = 'tweets'
             self.__twitter_search_params_recursive__['q'] = search_query
             self.__twitter_search_init_params__['q'] = search_query
 
@@ -122,7 +130,9 @@ class TweetScrapperSearch(TweetScrapper):
                 logger.info("Circular search detected. Taking measures...")
 
                 # Try changing user-agent (Best case)
-                self.switch_user_agent()
+                self.switch_request_user_agent()
+                # Try changing request proxy
+                self.switch_request_proxy()
                 # Try adding a request delay (Works in front-end)
                 # time.sleep(random.choice(self.__twitter_request_delays__))
                 # Try stepping the date (Worst case)
@@ -255,12 +265,12 @@ if __name__ == '__main__':
     #
     # ts = TweetScrapperSearch(search_from_accounts="BarackObama",
     #                          tweet_dump_path='twitter.csv',
-    #                          pages=-1,
+    #                          num_tweets=-1,
     #                          tweet_dump_format='csv')
 
     ts = TweetScrapperSearch(search_all="trump",
                              tweet_dump_path='twitter.csv',
-                             pages=100,
+                             num_tweets=100,
                              search_since_date='2019-01-01',
                              search_till_date='2019-05-01',
                              tweet_dump_format='csv')
@@ -270,19 +280,19 @@ if __name__ == '__main__':
     # # avengers endgame spiderman OR ironman -spoilers
     # ts = TweetScrapperSearch(search_all="avengers endgame",
     #                          search_any="spiderman ironman",
-    #                          search_excludes="spoilers", pages=2)
+    #                          search_excludes="spoilers", num_tweets=2)
     #
     # ts = TweetScrapperSearch(search_all="avengers marvel",
     #                          search_hashtags="avengers",
     #                          search_from_accounts="marvel ",
-    #                          pages=2)
+    #                          num_tweets=2)
     #
     # ts = TweetScrapperSearch(search_all="raptors",
     #                          search_since_date="2019-03-01", search_till_date="2019-06-01",
-    #                          pages=1)
+    #                          num_tweets=1)
     #
     # ts = TweetScrapperSearch(search_hashtags="raptors", search_near_place="toronto", pages=1)
-    l_tweet_count, l_tweet_id, l_last_time, l_dump_path = ts.get_search_tweets(True)
+    l_tweet_count, l_tweet_id, l_last_time, l_dump_path = ts.get_search_tweets(latest_tweets=True, save_output=True)
     # for l_tweet in l_extracted_tweets:
     #     print(str(l_tweet))
     print(l_tweet_count)
