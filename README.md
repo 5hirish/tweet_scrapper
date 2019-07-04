@@ -70,6 +70,7 @@ Python Package dependencies listed in [requirements.txt](requirements.txt)
 * Exports data to file in CSV or JSON with UTF-8 encoding
 * Scraps tweets in a recursive and greedy approach
 * Supports Proxy requests, request delays
+* Extracts user information including bio, location and stats
 
 ### TODO
 
@@ -77,7 +78,7 @@ Python Package dependencies listed in [requirements.txt](requirements.txt)
 - [x] Extract tweets from twitter search with advance filters
 - [x] Exports tweets to files
 - [x] Supports infinite scroll
-- [ ] Extract tweets from a twitter thread, given the thread link
+- [x] Extract tweets from a twitter thread, given the thread
 - [ ] Extract the quoted tweet along with a tweet
 
 ### Contributions

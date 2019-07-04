@@ -78,6 +78,55 @@ search_since_date: Search tweets since this date: YYYY-MM-DD. eg. 2018-11-01
 language: Search tweets in language from language codes. eg. 'en' for English
 ```
 
+### Fetch User Tweet thread Tweets
+
+```python
+from tweetscrape.conversation_tweets import TweetScrapperConversation
+
+tweet_scrapper = TweetScrapperConversation("ewarren", 1146415363460141057, 40, 'twitter.csv', 'csv')
+tweet_count, tweet_id, tweet_time, dump_path = tweet_scrapper.get_thread_tweets()
+print("Extracted {0} tweets till {1} at {2}".format(tweet_count, tweet_time, dump_path))
+```
+
+The `TweetScrapperConversation` class scrapes the tweets from a tweet tread or conversation.
+ It requires two parameters, the Twitter username of the user who tweeted the original tweet and
+  the id of the tweet. It also requires the **number of tweets** to scrape, the **file path** to dump 
+the data and the data **export format**, which can be JSON or CSV.
+You can even add proxy to the scraper via `request_proxies` parameter.
+
+The `get_thread_tweets()` method returns the count of tweets, last extracted tweet id, last extracted tweet time and
+ the file export path of extracted tweets. 
+ 
+ 
+### Fetch User stats
+
+```python
+from tweetscrape.users_scrape import TweetScrapperUser
+
+ts = TweetScrapperUser("5hirish")
+user_info = ts.get_profile_info()
+```
+
+The `TweetScrapperUser` class scrapes the stats of the user from Twitter.
+ It requires one parameter, the Twitter username of the user.
+You can even add proxy to the scraper via `request_proxies` parameter.
+
+The `get_profile_info()` method returns the JSON with user information. 
+ ```json
+{
+  "username": "@5hirish", 
+  "name": "Shirish Kadam", 
+  "bio": "Building @alleviate_hq #SaaS #NLProc  #MachineLearning #DataScience\nAutomating Automation\nhttp://5hirish.com",
+  "location": "Bengaluru, India", 
+  "location_id": "1b8680cd52a711cb", 
+  "url": "http://www.shirishkadam.com", 
+  "tweets": "2619", 
+  "following": "694", 
+  "followers": "243", 
+  "favorites": "8112"
+}
+```
+
 ### Extracted Tweets data model
 
 Method | Description
