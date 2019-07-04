@@ -216,7 +216,8 @@ class TweetScrapper:
                     if username is not None and conversation_id is None:
                         profile_sidebar = html_tree.xpath(self._tweet_user_profile_sidebar_)
                         profile_canopy = html_tree.xpath(self._tweet_user_profile_canopy_)
-                        if profile_sidebar is not None and profile_canopy is not None:
+                        if profile_sidebar is not None and len(profile_sidebar) > 0 and \
+                                profile_canopy is not None and len(profile_canopy) > 0:
                             self.extract_user_data(username, profile_sidebar, profile_canopy)
 
                     tweet_stream = html_tree.xpath(self._tweet_stream_max_)
