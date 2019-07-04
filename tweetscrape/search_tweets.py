@@ -201,7 +201,7 @@ class TweetScrapperSearch(TweetScrapper):
 
         if search_excludes is not None and search_excludes != "":
             search_excludes = " -".join(search_excludes.split())
-            search_excludes = " -" + search_excludes
+            search_excludes = "-" + search_excludes
             search_query_filters.append(search_excludes)
 
         if search_hashtags is not None and search_hashtags != "":
