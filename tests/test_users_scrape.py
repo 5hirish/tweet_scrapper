@@ -1,6 +1,4 @@
 import pytest
-import os
-import csv
 from tweetscrape.users_scrape import TweetScrapperUser
 
 

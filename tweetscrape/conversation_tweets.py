@@ -1,10 +1,7 @@
-# include_available_features=1&include_entities=1&max_position=DAACDwABCgAAAAMP5FiTbNfgAA_kT1urF2AFD-RsnAvW4AAIAAMAAAABAgAEAAAA&reset_error_state=false
-
 import logging
 from math import ceil
 
 from tweetscrape.tweets_scrape import TweetScrapper
-from tweetscrape.search_tweets import TweetScrapperSearch
 
 """
 Parsing with XPath 1.0 query

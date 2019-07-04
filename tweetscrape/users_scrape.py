@@ -3,6 +3,8 @@ from datetime import datetime
 
 from tweetscrape.tweets_scrape import TweetScrapper
 
+logger = logging.getLogger(__name__)
+
 
 class TweetScrapperUser(TweetScrapper):
     username = "5hirish"
@@ -32,15 +34,14 @@ class TweetScrapperUser(TweetScrapper):
                          self.__twitter_profile_header__,
                          self.__twitter_profile_params__,
                          request_proxies,
-                        1, None, None)
+                         1, None, None)
 
     def get_profile_info(self, save_output=False):
-        output_file_name = '/' + self.username + '_profile'
+        # output_file_name = '/' + self.username + '_profile'
         if self.username is not None and self.username != "":
-            tweet_count, last_tweet_id, last_tweet_time, dump_path = \
-                self.execute_twitter_request(username=self.username,
-                                             log_output=save_output,
-                                             log_file=None)
+            _, _, _, _ = self.execute_twitter_request(username=self.username,
+                                                      log_output=save_output,
+                                                      log_file=None)
             return self.get_user_info()
         return ""
 
@@ -52,6 +53,8 @@ class TweetScrapperUser(TweetScrapper):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
+
     ts = TweetScrapperUser("@5hirish")
     l_user = ts.get_profile_info()
     print(l_user)
