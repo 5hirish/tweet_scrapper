@@ -97,7 +97,7 @@ class TweetScrapperSearch(TweetScrapper):
         logger.info("Search:|{0}|".format(search_query))
 
         if latest_tweets:
-            self.__twitter_request_params__['f'] = 'tweets'
+            self.__twitter_search_init_params__['f'] = 'tweets'
         self.__twitter_search_init_params__['q'] = search_query
 
         self.update_request_url(self.__twitter_search_init_url__)
