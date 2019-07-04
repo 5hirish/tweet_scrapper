@@ -56,7 +56,7 @@ class TweetScrapperConversation(TweetScrapper):
                          request_proxies,
                          self.pages, tweet_dump_path, tweet_dump_format)
 
-    def get_profile_tweets(self, save_output=False):
+    def get_thread_tweets(self, save_output=False):
         output_file_name = '/' + self.username + '_conversation'
         # Search Profile since: until: from:
         # conversation_id
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     # https://twitter.com/ewarren/status/1146132929065738246?conversation_id=1146132929065738246
     l_ts = TweetScrapperConversation("ewarren", 1146415363460141057, 40, 'twitter_conv.csv', 'csv')
-    l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = l_ts.get_profile_tweets(True)
+    l_tweet_count, l_tweet_id, l_tweet_time, l_dump_path = l_ts.get_thread_tweets(True)
     # for l_tweet in l_extracted_tweets:
     #     print(str(l_tweet))
     print(l_tweet_count)

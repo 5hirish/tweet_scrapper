@@ -382,23 +382,23 @@ class TweetScrapper:
         if user_display_name is not None and len(user_display_name) > 0:
             user_display_name_val = ''.join(user_display_name)
         else:
-            user_display_name_val = ''
+            user_display_name_val = None
         user_bio_val = profile_sidebar[0].xpath(self._tweet_user_bio_)
         if user_bio_val is not None and len(user_bio_val) > 0:
             user_bio_val = ''.join(user_bio_val).replace('\xa0', '')
         else:
-            user_bio_val = ''
+            user_bio_val = None
         user_location = profile_sidebar[0].xpath(self._tweet_user_location_)
         if user_location is not None and len(user_location) > 0:
             user_location_id_val = user_location[0].attrib.get('data-place-id')
             user_location_val = user_location[0].text
         else:
-            user_location_id_val, user_location_val = '', ''
+            user_location_id_val, user_location_val = None, None
         user_url = profile_sidebar[0].xpath(self._tweet_user_url_)
         if user_url is not None and len(user_url) > 0:
             user_url_val = user_url[0].attrib.get('title')
         else:
-            user_url_val = ''
+            user_url_val = None
 
         user_tweets_count = profile_canopy[0].xpath(self._tweet_user_tweets_count_)
         user_count_val = user_tweets_count[0].attrib.get('data-count')
@@ -407,7 +407,10 @@ class TweetScrapper:
         user_follower = profile_canopy[0].xpath(self._tweet_user_followers_count_)
         user_follower_val = user_follower[0].attrib.get('data-count')
         user_favorites = profile_canopy[0].xpath(self._tweet_user_favorites_count_)
-        user_favorites_val = user_favorites[0].attrib.get('data-count')
+        if user_favorites is not None and len(user_favorites) > 0:
+            user_favorites_val = user_favorites[0].attrib.get('data-count')
+        else:
+            user_favorites_val = None
 
         self.scraped_user_info = UserInfo(
             user_handle,
