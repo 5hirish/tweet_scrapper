@@ -42,7 +42,7 @@ class TweetScrapperSearch(TweetScrapper):
                  search_from_accounts="", search_to_accounts="", search_mentions="",
                  search_near_place="", search_near_distance="",
                  search_till_date="", search_since_date="",
-                 num_tweets=2, language='',
+                 num_tweets=40, language='',
                  tweet_dump_path="", tweet_dump_format="",
                  request_proxies=None):
 
